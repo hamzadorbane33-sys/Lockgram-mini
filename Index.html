@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+  <title>LockGram Mini</title>
+  <style>
+    :root{--accent:#00ff88;--bg:#0a0a0a;--card:#111;--text:#fff;--sub:#aaa;}
+    *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+    body{background:var(--bg);color:var(--text);display:flex;flex-direction:column;align-items:center;padding:20px;min-height:100vh;}
+    header{text-align:center;margin-bottom:30px;}header img{height:60px;}header h1{font-size:24px;color:var(--accent);margin-top:8px;}header p{color:var(--sub);font-size:14px;}
+    #wallet{width:100%;max-width:320px;margin-bottom:20px;}#connectBtn{width:100%;margin-top:10px;background:var(--accent);color:#000;border:none;padding:14px;border-radius:24px;font-weight:700;}
+    #actions{display:flex;flex-direction:column;gap:12px;width:100%;max-width:320px;}
+    .btn{background:var(--accent);color:#000;border:none;padding:14px;border-radius:24px;font-weight:700;cursor:pointer;transition:.2s;}.btn:hover{transform:scale(1.03);}
+    footer{margin-top:auto;text-align:center;font-size:14px;color:var(--sub);}footer span{color:var(--accent);font-weight:700;}
+  </style>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://unpkg.com/@tonconnect/ui@latest/dist/ton-connect-ui.min.js"></script>
+</head>
+<body>
+  <header>
+    <img src="https://i.imgur.com/LQuakpq.png" alt="LockGram"/>
+    <h1>LockGram Mini</h1>
+    <p>Connect TON wallet → earn LockCoins</p>
+  </header>
+
+  <section id="wallet">
+    <ton-connect-ui></ton-connect-ui>
+    <button id="connectBtn" class="btn">Connect Wallet</button>
+    <p id="addr"></p>
+  </section>
+
+  <section id="actions">
+    <button class="btn" onclick="invite()">Invite Friend (+10 LC)</button>
+    <button class="btn" onclick="checkIn()">Daily Check-In (+5 LC)</button>
+  </section>
+
+  <footer>
+    <p>Balance: <span id="balance">0</span> LockCoins</p>
+    <p id="status">Tap an action to start</p>
+  </footer>
+
+  <script>
+    Telegram.WebApp.ready(); Telegram.WebApp.expand();
+    const connector = new TON_CONNECT_UI.TonConnectUI({manifestUrl:'https://'+window.location.host+'/manifest.json'});
+    let wallet=null, balance=0;
+    connector.onStatusChange(w=>{wallet=w; document.getElementById('addr').textContent=wallet?wallet.account.address:''; if(wallet)addCoins(50);});
+    document.getElementById('connectBtn').onclick=()=>connector.connectWallet();
+    function addCoins(n){balance+=n; document.getElementById('balance').textContent=balance; Telegram.WebApp.showAlert('+'+n+' LockCoins');}
+    function invite(){Telegram.WebApp.shareURL('https://t.me/Lockgram1_bot/LockGram?startapp=ref_'+(wallet?wallet.account.address.slice(39):'guest'),'Join LockGram – earn crypto for chatting!'); addCoins(10);}
+    function checkIn(){const t=new Date().toDateString(), l=localStorage.getItem('lockgram_checkin'); if(l===t){Telegram.WebApp.showAlert('Already checked in today'); return;} localStorage.setItem('lockgram_checkin',t); addCoins(5);}
+  </script>
+</body>
+</html>
