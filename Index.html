@@ -15,9 +15,9 @@
     header h1{font-size:24px;color:var(--accent);margin-top:8px}
     header p{color:var(--sub);font-size:14px}
     #wallet{width:100%;max-width:320px;margin-bottom:20px}
-    #connectBtn{width:100%;margin-top:10px;background:var(--accent);color:#000;border:none;padding:14px;border-radius:24px;font-weight:700;font-size:16px;cursor:pointer}
+    #connectContainer{width:100%;margin-top:10px}
     #actions{display:flex;flex-direction:column;gap:12px;width:100%;max-width:320px}
-    .btn{background:var(--accent);color:#000;border:none;padding:14px;border-radius:24px;font-weight:700;cursor:pointer;transition:.2s;font-size:16px}
+    .btn{background:var(--accent);color:#000;border:none;padding:14px;border-radius:24px;font-weight:700;cursor:pointer;transition:.2s;font-size:16px;width:100%}
     .btn:hover{transform:scale(1.03)}
     footer{margin-top:auto;text-align:center;font-size:14px;color:var(--sub);padding:20px 0}
     footer span{color:var(--accent);font-weight:700;font-size:18px}
@@ -33,7 +33,7 @@
   </header>
 
   <section id="wallet">
-    <button id="connectBtn">Connect Wallet</button>
+    <div id="connectContainer"></div>
     <p id="addr"></p>
   </section>
 
@@ -44,7 +44,7 @@
 
   <footer>
     <p>Balance: <span id="balance">0</span> LockCoins</p>
-    <p id="status">Tap an action to start</p>
+    <p id="status">Tap Connect to start</p>
   </footer>
 
   <script>
@@ -53,37 +53,103 @@
 
     let userBalance = 0;
     let userWallet = null;
+    let tonConnectUI = null;
 
-    // TON Connect UI – 2025 correct way
-    const tonConnectUI = new TonConnectUI({
-      manifestUrl: 'https://meek-creponne-1338a7.netlify.app/manifest.json',
-      buttonRootId: 'connectBtn' // auto-handles the button
-    });
-
-    // Wallet status change
-    tonConnectUI.onStatusChange(async (wallet) => {
-      userWallet = wallet;
-      const addrEl = document.getElementById('addr');
-      const statusEl = document.getElementById('status');
-
-      if (wallet) {
-        const short = wallet.account.address.slice(0, 6) + '...' + wallet.account.address.slice(-4);
-        addrEl.textContent = short;
-        statusEl.textContent = 'Wallet connected!';
-
-        // First-time connect bonus (only once)
-        if (!localStorage.getItem('lockgram_first_connect')) {
-          addCoins(50);
-          localStorage.setItem('lockgram_first_connect', 'true');
-        }
-      } else {
-        addrEl.textContent = '';
-        statusEl.textContent = 'Wallet not connected';
+    // Wait for TON Connect script to load, then init
+    function initTonConnect() {
+      if (typeof TON_CONNECT_UI === 'undefined') {
+        console.error('TON Connect UI not loaded yet');
+        setTimeout(initTonConnect, 500); // Retry
+        return;
       }
-    });
 
-    // Add coins + save + haptic
+      try {
+        tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+          manifestUrl: 'https://meek-creponne-1338a7.netlify.app/manifest.json',
+          buttonRootId: 'connectContainer'
+        });
+        console.log('TON Connect UI initialized successfully');
+
+        // Listen for wallet changes
+        tonConnectUI.onStatusChange((wallet) => {
+          console.log('Wallet status changed:', wallet ? 'connected' : 'disconnected');
+          userWallet = wallet;
+          const addrEl = document.getElementById('addr');
+          const statusEl = document.getElementById('status');
+
+          if (wallet) {
+            const short = wallet.account.address.slice(0, 6) + '...' + wallet.account.address.slice(-4);
+            addrEl.textContent = short;
+            statusEl.textContent = 'Wallet connected!';
+
+            // First-time bonus
+            if (!localStorage.getItem('lockgram_first_connect')) {
+              addCoins(50);
+              localStorage.setItem('lockgram_first_connect', 'true');
+            }
+          } else {
+            addrEl.textContent = '';
+            statusEl.textContent = 'Connect your wallet';
+          }
+        });
+
+        // Trigger initial status check
+        tonConnectUI.onStatusChange(tonConnectUI.connected);
+      } catch (error) {
+        console.error('Failed to init TON Connect UI:', error);
+        document.getElementById('status').textContent = 'Error loading wallet connector – check console';
+      }
+    }
+
+    // Start init after DOM loads
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initTonConnect);
+    } else {
+      initTonConnect();
+    }
+
+    // Add coins + haptic + save
     function addCoins(amount) {
       userBalance += amount;
       document.getElementById('balance').textContent = userBalance;
-      localStorage.setItem('lockgram
+      localStorage.setItem('lockgram_balance', userBalance.toString());
+      if (Telegram.WebApp.HapticFeedback) {
+        Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+      }
+      Telegram.WebApp.showAlert(`+${amount} LockCoins! 🎉`);
+    }
+
+    // Load balance on start
+    const savedBalance = localStorage.getItem('lockgram_balance');
+    if (savedBalance) {
+      userBalance = parseInt(savedBalance, 10);
+      document.getElementById('balance').textContent = userBalance;
+    }
+
+    // Invite
+    function invite() {
+      if (!userWallet) {
+        Telegram.WebApp.showAlert('Connect wallet first, bro!');
+        return;
+      }
+      const ref = userWallet.account.address.slice(-8);
+      const url = `https://t.me/Lockgramapp_bot/Lockgrammini?startapp=ref_${ref}`;
+      Telegram.WebApp.openLink(url);
+      addCoins(10);
+      document.getElementById('status').textContent = 'Invite sent! +10 LC';
+    }
+
+    // Check-in
+    function checkIn() {
+      const today = new Date().toDateString();
+      if (localStorage.getItem('lockgram_checkin') === today) {
+        Telegram.WebApp.showAlert('Already checked in today! Tomorrow? ⏰');
+        return;
+      }
+      localStorage.setItem('lockgram_checkin', today);
+      addCoins(5);
+      document.getElementById('status').textContent = 'Daily check-in! +5 LC';
+    }
+  </script>
+</body>
+</html>
