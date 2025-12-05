@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+        <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -7,29 +7,31 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
   <style>
-    :root{--accent:#00ff88;--bg:#0a0a0a;--card:#111;--text:#fff;--sub:#aaa}
-    *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
-    body{background:var(--bg);color:var(--text);display:flex;flex-direction:column;align-items:center;padding:20px;min-height:100vh}
+    :root{--accent:#00ff88;--bg:#0a0a0a;--text:#fff;--sub:#aaa}
+    *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,sans-serif}
+    body{background:var(--bg);color:var(--text);display:flex;flex-direction:column;align-items:center;padding:20px;min-height:100vh;overflow:hidden}
     header{text-align:center;margin-bottom:30px}
-    header img{height:60px;border-radius:50%}
-    header h1{font-size:24px;color:var(--accent);margin-top:8px}
-    header p{color:var(--sub);font-size:14px}
-    #wallet{width:100%;max-width:320px;margin-bottom:20px}
+    header img{height:70px;border-radius:50%;border:3px solid var(--accent)}
+    header h1{font-size:26px;color:var(--accent);margin:10px 0 5px}
+    header p{font-size:14px;color:var(--sub)}
+    #wallet{max-width:340px;width:100%;margin-bottom:25px}
     #connectContainer{width:100%;margin-top:10px}
-    #actions{display:flex;flex-direction:column;gap:12px;width:100%;max-width:320px}
-    .btn{background:var(--accent);color:#000;border:none;padding:14px;border-radius:24px;font-weight:700;cursor:pointer;transition:.2s;font-size:16px;width:100%}
-    .btn:hover{transform:scale(1.03)}
-    footer{margin-top:auto;text-align:center;font-size:14px;color:var(--sub);padding:20px 0}
-    footer span{color:var(--accent);font-weight:700;font-size:18px}
-    #addr{margin-top:8px;font-size:13px;color:var(--sub);word-break:break-all}
-    #status{margin-top:15px;color:var(--accent);font-weight:600}
+    #addr{margin-top:8px;font-size:13px;color:var(--sub);word-break:break-all;padding:0 10px}
+    #actions{display:flex;flex-direction:column;gap:14px;width:100%;max-width:340px}
+    .btn{background:var(--accent);color:#000;border:none;padding:16px;border-radius:28px;font-weight:800;font-size:17px;cursor:pointer;transition:.2s;width:100%}
+    .btn:hover{transform:scale(1.04)}
+    .btn:active{transform:scale(0.98)}
+    footer{margin-top:auto;text-align:center;padding:20px 0;width:100%}
+    #balance{font-size:32px;font-weight:900;color:var(--accent)}
+    #status{margin-top:12px;color:var(--accent);font-weight:600}
+    #timer{margin-top:15px;font-size:18px;color:#ff00aa}
   </style>
 </head>
 <body>
   <header>
     <img src="https://i.imgur.com/LQuakpq.png" alt="LockGram"/>
     <h1>LockGram Mini</h1>
-    <p>Connect TON wallet → earn LockCoins</p>
+    <p>Stay in app → earn LockCoins 24/7</p>
   </header>
 
   <section id="wallet">
@@ -43,8 +45,9 @@
   </section>
 
   <footer>
-    <p>Balance: <span id="balance">0</span> LockCoins</p>
-    <p id="status">Tap Connect to start</p>
+    <p>Balance: <span id="balance">0</span> LC</p>
+    <p id="timer">Farming: 0 LC/min</p>
+    <p id="status">Connect wallet to start farming</p>
   </footer>
 
   <script>
@@ -54,101 +57,146 @@
     let userBalance = 0;
     let userWallet = null;
     let tonConnectUI = null;
+    let farmingInterval = null;
+    let isVisible = true;
 
-    // Wait for TON Connect script to load, then init
+    // === USER DATA COLLECTION FOR FUTURE APP ===
+    const tgUser = Telegram.WebApp.initDataUnsafe.user || {};
+    let userData = {
+      tg_id: tgUser.id || 0,
+      username: tgUser.username || 'guest',
+      first_name: tgUser.first_name || 'Anonymous',
+      photo_url: tgUser.photo_url || '',
+      wallet: '',
+      balance: 0,
+      ref_by: '',
+      invited_count: parseInt(localStorage.getItem('invited_count') || '0'),
+      joined_at: new Date().toISOString(),
+      last_seen: new Date().toISOString()
+    };
+
+    // Referral detection
+    const params = new URLSearchParams(location.search);
+    const ref = params.get('startapp');
+    if (ref && ref.startsWith('ref_')) {
+      userData.ref_by = ref.replace('ref_', '').slice(-12);
+    }
+
+    // Load saved data
+    const saved = localStorage.getItem('lockgram_userdata');
+    if (saved) userData = JSON.parse(saved);
+
+    // Save user data
+    function saveUserData() {
+      if (userWallet) userData.wallet = userWallet.account.address;
+      userData.balance = userBalance;
+      userData.last_seen = new Date().toISOString();
+      localStorage.setItem('lockgram_userdata', JSON.stringify(userData));
+      localStorage.setItem('lockgram_balance', userBalance.toString());
+      localStorage.setItem('invited_count', userData.invited_count.toString());
+    }
+
+    // === TON CONNECT INIT ===
     function initTonConnect() {
       if (typeof TON_CONNECT_UI === 'undefined') {
-        console.error('TON Connect UI not loaded yet');
-        setTimeout(initTonConnect, 500); // Retry
+        setTimeout(initTonConnect, 300);
         return;
       }
+      tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+        manifestUrl: 'https://meek-creponne-1338a7.netlify.app/manifest.json',
+        buttonRootId: 'connectContainer'
+      });
 
-      try {
-        tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-          manifestUrl: 'https://meek-creponne-1338a7.netlify.app/manifest.json',
-          buttonRootId: 'connectContainer'
-        });
-        console.log('TON Connect UI initialized successfully');
-
-        // Listen for wallet changes
-        tonConnectUI.onStatusChange((wallet) => {
-          console.log('Wallet status changed:', wallet ? 'connected' : 'disconnected');
-          userWallet = wallet;
-          const addrEl = document.getElementById('addr');
-          const statusEl = document.getElementById('status');
-
-          if (wallet) {
-            const short = wallet.account.address.slice(0, 6) + '...' + wallet.account.address.slice(-4);
-            addrEl.textContent = short;
-            statusEl.textContent = 'Wallet connected!';
-
-            // First-time bonus
-            if (!localStorage.getItem('lockgram_first_connect')) {
-              addCoins(50);
-              localStorage.setItem('lockgram_first_connect', 'true');
-            }
-          } else {
-            addrEl.textContent = '';
-            statusEl.textContent = 'Connect your wallet';
+      tonConnectUI.onStatusChange((wallet) => {
+        userWallet = wallet;
+        const addrEl = document.getElementById('addr');
+        if (wallet) {
+          const short = wallet.account.address.slice(0,6) + '...' + wallet.account.address.slice(-4);
+          addrEl.textContent = short;
+          document.getElementById('status').textContent = 'Farming started! +1 LC/min';
+          
+          if (!localStorage.getItem('lockgram_first_connect')) {
+            addCoins(50);
+            localStorage.setItem('lockgram_first_connect', 'true');
           }
-        });
+          startFarming();
+        } else {
+          addrEl.textContent = '';
+          document.getElementById('status').textContent = 'Connect wallet to farm';
+          stopFarming();
+        }
+        saveUserData();
+      });
+    }
+    initTonConnect();
 
-        // Trigger initial status check
-        tonConnectUI.onStatusChange(tonConnectUI.connected);
-      } catch (error) {
-        console.error('Failed to init TON Connect UI:', error);
-        document.getElementById('status').textContent = 'Error loading wallet connector – check console';
+    // === PASSIVE FARMING (THE REAL LOCKGRAM MAGIC) ===
+    function startFarming() {
+      if (farmingInterval) return;
+      farmingInterval = setInterval(() => {
+        if (document.visibilityState === 'visible' && userWallet) {
+          addCoins(1);
+          document.getElementById('timer').textContent = 'Farming: +1 LC/min';
+        } else {
+          document.getElementById('timer').textContent = 'Paused – come back!';
+        }
+      }, 60000);
+    }
+
+    function stopFarming() {
+      clearInterval(farmingInterval);
+      farmingInterval = null;
+      document.getElementById('timer').textContent = 'Farming stopped';
+    }
+
+    // Pause when user leaves
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        Telegram.WebApp.showAlert("Don't leave! Farming paused ⏸️");
       }
-    }
+    });
 
-    // Start init after DOM loads
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initTonConnect);
-    } else {
-      initTonConnect();
-    }
-
-    // Add coins + haptic + save
+    // === COINS SYSTEM ===
     function addCoins(amount) {
       userBalance += amount;
       document.getElementById('balance').textContent = userBalance;
-      localStorage.setItem('lockgram_balance', userBalance.toString());
-      if (Telegram.WebApp.HapticFeedback) {
-        Telegram.WebApp.HapticFeedback.impactOccurred('medium');
-      }
-      Telegram.WebApp.showAlert(`+${amount} LockCoins! 🎉`);
+      saveUserData();
+      Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+      if (amount > 1) Telegram.WebApp.showAlert(`+${amount} LockCoins!`);
     }
 
-    // Load balance on start
-    const savedBalance = localStorage.getItem('lockgram_balance');
-    if (savedBalance) {
-      userBalance = parseInt(savedBalance, 10);
+    // Load balance
+    const savedBal = localStorage.getItem('lockgram_balance');
+    if (savedBal) {
+      userBalance = parseInt(savedBal);
       document.getElementById('balance').textContent = userBalance;
     }
 
-    // Invite
+    // === ACTIONS ===
     function invite() {
-      if (!userWallet) {
-        Telegram.WebApp.showAlert('Connect wallet first, bro!');
-        return;
-      }
-      const ref = userWallet.account.address.slice(-8);
-      const url = `https://t.me/Lockgramapp_bot/Lockgrammini?startapp=ref_${ref}`;
+      if (!userWallet) return Telegram.WebApp.showAlert('Connect wallet first!');
+      const refCode = userWallet.account.address.slice(-8);
+      const url = `https://t.me/Lockgramapp_bot/Lockgrammini?startapp=ref_${refCode}`;
       Telegram.WebApp.openLink(url);
       addCoins(10);
+      userData.invited_count++;
+      saveUserData();
       document.getElementById('status').textContent = 'Invite sent! +10 LC';
     }
 
-    // Check-in
     function checkIn() {
       const today = new Date().toDateString();
       if (localStorage.getItem('lockgram_checkin') === today) {
-        Telegram.WebApp.showAlert('Already checked in today! Tomorrow? ⏰');
-        return;
+        return Telegram.WebApp.showAlert('Already checked in today!');
       }
       localStorage.setItem('lockgram_checkin', today);
       addCoins(5);
-      document.getElementById('status').textContent = 'Daily check-in! +5 LC';
+      document.getElementById('status').textContent = 'Check-in +5 LC!';
+    }
+
+    // Start farming if already connected
+    if (localStorage.getItem('lockgram_first_connect')) {
+      setTimeout(() => tonConnectUI?.connected && startFarming(), 2000);
     }
   </script>
 </body>
