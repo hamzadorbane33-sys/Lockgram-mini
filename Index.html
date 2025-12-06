@@ -1,4 +1,4 @@
-                <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -7,7 +7,7 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
   <style>
-    :root{--a:#00ff88;--bg:#0a0a0a;--c:#111;--t:#fff;--s:#aaa;--p:#ff00aa}
+    :root{--a:#00ff88;--bg:#0a0a0a;--c:#111;--t:#fff;--s:#aaa;--p:#ff00aa;--r:#ff0055}
     *{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,sans-serif}
     body{background:var(--bg);color:var(--t);min-height:100vh;display:flex;flex-direction:column}
     header{text-align:center;padding:20px 0;background:#111;position:sticky;top:0;z-index:10;border-bottom:2px solid var(--a)}
@@ -18,16 +18,16 @@
     .tab.active{background:var(--a);color:#000}
     .content{padding:15px;display:none}
     .content.active{display:block}
+    .locked{background:#220011;padding:40px 20px;text-align:center;border-radius:16px;margin:20px 0}
+    .locked h2{color:var(--r);font-size:22px;margin:15px 0}
+    .locked p{color:var(--s)}
     #connectContainer{margin:15px 0}
     #addr{font-size:13px;color:var(--s);margin:10px 0;word-break:break-all}
     .btn{background:var(--a);color:#000;border:none;padding:16px;border-radius:28px;font-weight:800;font-size:17px;width:100%;margin:10px 0;cursor:pointer}
     #balance{font-size:36px;color:var(--a);font-weight:900}
     #timer{margin:10px 0 20px;color:var(--p);font-size:18px;font-weight:600}
-
-    /* Chat & Feed */
-    #messages, #feed{max-height:60vh;overflow-y:auto;padding:10px;background:#111;border-radius:16px}
+    #messages,#feed{max-height:60vh;overflow-y:auto;padding:10px;background:#111;border-radius:16px}
     .msg{padding:10px;border-radius:12px;margin:8px 0;background:#1a1a1a;position:relative}
-    .msg.me{background:var(--a);color:#000;margin-left:20%}
     .msg-name{font-weight:700;font-size:13px;color:var(--a)}
     .msg-text{margin-top:4px;word-break:break-all}
     .msg-time{font-size:11px;color:#666;float:right}
@@ -46,11 +46,11 @@
 
   <div class="tabs">
     <div class="tab active" onclick="openTab('farm')">Farm</div>
-    <div class="tab" onclick="openTab('chat')">Chat</div>
-    <div class="tab" onclick="openTab('journey')">Journey</div>
+    <div class="tab" onclick="checkWallet('chat')">Chat</div>
+    <div class="tab" onclick="checkWallet('journey')">Journey</div>
   </div>
 
-  <!-- FARM TAB -->
+  <!-- FARM -->
   <div id="farm" class="content active">
     <div id="connectContainer"></div>
     <p id="addr"></p>
@@ -59,28 +59,39 @@
     <button class="btn" onclick="checkIn()">Daily Check-In (+5 LC)</button>
   </div>
 
-  <!-- CHAT TAB -->
+  <!-- CHAT (locked until wallet) -->
   <div id="chat" class="content">
-    <div id="messages"></div>
-    <input type="text" id="chatInput" placeholder="Say something in the farm..." maxlength="200">
-    <button id="sendBtn">Send</button>
+    <div id="chatLocked" class="locked">
+      <h2>Wallet Required</h2>
+      <p>You must connect your TON wallet to chat</p>
+    </div>
+    <div id="chatUnlocked" style="display:none">
+      <div id="messages"></div>
+      <input type="text" id="chatInput" placeholder="Say something..." maxlength="200">
+      <button id="sendBtn">Send</button>
+    </div>
   </div>
 
-  <!-- JOURNEY TAB -->
+  <!-- JOURNEY (locked until wallet) -->
   <div id="journey" class="content">
-    <div id="feed"></div>
-    <textarea id="postInput" placeholder="Share your LockGram journey... (max 300 chars)" maxlength="300" rows="3"></textarea>
-    <button id="postBtn">Post Journey</button>
+    <div id="journeyLocked" class="locked">
+      <h2>Wallet Required</h2>
+      <p>Connect wallet to share your journey</p>
+    </div>
+    <div id="journeyUnlocked" style="display:none">
+      <div id="feed"></div>
+      <textarea id="postInput" placeholder="Share your farming journey..." maxlength="300" rows="3"></textarea>
+      <button id="postBtn">Post Journey</button>
+    </div>
   </div>
 
-  <footer>Made with love • Stay locked = get rich</footer>
+  <footer>Only real farmers chat here • Connect wallet now</footer>
 
   <script>
     Telegram.WebApp.ready(); Telegram.WebApp.expand();
     const user = Telegram.WebApp.initDataUnsafe.user || {};
     let balance = 0, wallet = null, tonConnectUI = null, farming = null;
 
-    // Load data
     balance = parseInt(localStorage.getItem('lockgram_balance') || '0');
     document.getElementById('balance').textContent = balance;
 
@@ -98,16 +109,22 @@
           document.getElementById('status').textContent = 'Farming +1 LC/min';
           if (!localStorage.getItem('first_connect')) { addCoins(50); localStorage.setItem('first_connect','1'); }
           startFarming();
-        } else {
-          document.getElementById('status').textContent = 'Connect wallet to farm';
-          stopFarming();
+          unlockSocial(); // <— THIS UNLOCKS CHAT & JOURNEY
         }
       });
     }
     initTC();
 
-    // Farming
-    function startFarming() {
+    // Unlock chat & journey when wallet connects
+    function unlockSocial() {
+      document.getElementById('chatLocked').style.display = 'none';
+      document.getElementById('chatUnlocked').style.display = 'block';
+      document.getElementById('journeyLocked').style.display = 'none';
+      document.getElementById('journeyUnlocked').style.display = 'block';
+      loadMessages();
+    }
+
+    function Farming() {
       if (farming) return;
       farming = setInterval(() => {
         if (document.visibilityState === 'visible' && wallet) {
@@ -123,105 +140,34 @@
       document.getElementById('balance').textContent = balance;
       localStorage.setItem('lockgram_balance', balance);
       Telegram.WebApp.HapticFeedback.impactOccurred('medium');
-      if (n>1) postAuto(`just earned +\( {n} LC! Current: \){balance} LC`);
+      if (n>1) postAuto(`just farmed +\( {n} LC! Total: \){balance} LC`);
     }
 
-    // Tabs
+    // Block tab switch if no wallet
+    function checkWallet(tab) {
+      if (!wallet) {
+        Telegram.WebApp.showAlert('Connect your TON wallet first to join the community!');
+        return;
+      }
+      openTab(tab);
+    }
+
     function openTab(name) {
       document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
       document.querySelectorAll('.content').forEach(c=>c.classList.remove('active'));
+      document.querySelector(`.tab[onclick="checkWallet('${name}')"]`)?.classList.add('active') || 
       document.querySelector(`.tab[onclick="openTab('${name}')"]`).classList.add('active');
       document.getElementById(name).classList.add('active');
-      if (name === 'chat' || name === 'journey') loadMessages();
+      if ((name === 'chat' || name === 'journey') && wallet) loadMessages();
     }
 
-    // Chat & Feed System
+    // Chat & Feed (same as before)
     function saveMessage(type, text) {
-      const messages = JSON.parse(localStorage.getItem('lockgram_messages') || '[]');
-      messages.push({
+      const msgs = JSON.parse(localStorage.getItem('lockgram_messages') || '[]');
+      msgs.push({
         id: Date.now(),
         type,
         name: user.first_name || 'Farmer',
         username: user.username ? '@'+user.username : '',
         text,
-        time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
-      });
-      if (messages.length > 500) messages.shift();
-      localStorage.setItem('lockgram_messages', JSON.stringify(messages));
-    }
-
-    function postAuto(text) {
-      saveMessage('auto', text);
-      if (document.getElementById('chat').classList.contains('active')) loadMessages();
-    }
-
-    function loadMessages() {
-      const messages = JSON.parse(localStorage.getItem('lockgram_messages') || '[]');
-      const chatDiv = document.getElementById('messages');
-      const feedDiv = document.getElementById('feed');
-      chatDiv.innerHTML = '';
-      feedDiv.innerHTML = '';
-
-      messages.forEach(m => {
-        const div = document.createElement('div');
-        div.className = 'msg';
-        div.innerHTML = `
-          <div class="msg-name">\( {m.name} \){m.username}</div>
-          <div class="msg-text">${m.text}</div>
-          <div class="msg-time">${m.time}</div>
-        `;
-        if (m.type === 'chat') chatDiv.appendChild(div);
-        if (m.type === 'journey' || m.type === 'auto') feedDiv.appendChild(div.cloneNode(true));
-      });
-      chatDiv.scrollTop = chatDiv.scrollHeight;
-      feedDiv.scrollTop = feedDiv.scrollHeight;
-    }
-
-    // Send chat
-    document.getElementById('sendBtn').onclick = () => {
-      const input = document.getElementById('chatInput');
-      if (!input.value.trim()) return;
-      saveMessage('chat', input.value);
-      input.value = '';
-      loadMessages();
-    };
-
-    // Post journey
-    document.getElementById('postBtn').onclick = () => {
-      const input = document.getElementById('postInput');
-      if (!input.value.trim()) return;
-      saveMessage('journey', input.value);
-      input.value = '';
-      Telegram.WebApp.showAlert('Journey posted!');
-      loadMessages();
-    };
-
-    // Actions
-    function invite() {
-      if (!wallet) return Telegram.WebApp.showAlert('Connect wallet first!');
-      const url = `https://t.me/Lockgramapp_bot/Lockgrammini?startapp=ref_${wallet.account.address.slice(-8)}`;
-      Telegram.WebApp.openLink(url);
-      addCoins(10);
-    }
-    function checkIn() {
-      const today = new Date().toDateString();
-      if (localStorage.getItem('checkin') === today) return Telegram.WebApp.showAlert('Already checked in!');
-      localStorage.setItem('checkin', today);
-      addCoins(5);
-    }
-
-    // Auto load messages when opening tabs
-    setInterval(() => {
-      if (document.querySelector('#chat.active') || document.querySelector('#journey.active')) loadMessages();
-    }, 5000);
-
-    // Warn when leaving
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'hidden') Telegram.WebApp.showAlert("Don't leave bro! Farming paused");
-    });
-
-    // Start farming if already connected
-    setTimeout(() => wallet && startFarming(), 3000);
-  </script>
-</body>
-</html>
+        time: new Date().toLocaleTimeString([], {hour:'
