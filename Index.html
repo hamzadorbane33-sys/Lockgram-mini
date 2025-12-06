@@ -2,172 +2,140 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>LockGram Mini</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LockGram – Earn While You Chat</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
   <style>
-    :root{--a:#00ff88;--bg:#0a0a0a;--c:#111;--t:#fff;--s:#aaa;--p:#ff00aa;--r:#ff0055}
-    *{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,sans-serif}
-    body{background:var(--bg);color:var(--t);min-height:100vh;display:flex;flex-direction:column}
-    header{text-align:center;padding:20px 0;background:#111;position:sticky;top:0;z-index:10;border-bottom:2px solid var(--a)}
-    header img{height:60px;border-radius:50%;border:3px solid var(--a)}
-    header h1{font-size:24px;color:var(--a);margin:8px 0 4px;font-weight:900}
-    .tabs{display:flex;background:#111;border-bottom:1px solid #333;position:sticky;top:88px;z-index:9}
-    .tab{padding:14px;flex:1;text-align:center;font-weight:700;cursor:pointer;transition:.2s}
-    .tab.active{background:var(--a);color:#000}
-    .content{padding:15px;display:none}
-    .content.active{display:block}
-    .locked{background:#220011;padding:40px 20px;text-align:center;border-radius:16px;margin:20px 0}
-    .locked h2{color:var(--r);font-size:22px;margin:15px 0}
-    .locked p{color:var(--s)}
-    #connectContainer{margin:15px 0}
-    #addr{font-size:13px;color:var(--s);margin:10px 0;word-break:break-all}
-    .btn{background:var(--a);color:#000;border:none;padding:16px;border-radius:28px;font-weight:800;font-size:17px;width:100%;margin:10px 0;cursor:pointer}
-    #balance{font-size:36px;color:var(--a);font-weight:900}
-    #timer{margin:10px 0 20px;color:var(--p);font-size:18px;font-weight:600}
-    #messages,#feed{max-height:60vh;overflow-y:auto;padding:10px;background:#111;border-radius:16px}
-    .msg{padding:10px;border-radius:12px;margin:8px 0;background:#1a1a1a;position:relative}
-    .msg-name{font-weight:700;font-size:13px;color:var(--a)}
-    .msg-text{margin-top:4px;word-break:break-all}
-    .msg-time{font-size:11px;color:#666;float:right}
-    #chatInput,#postInput{width:100%;padding:14px;background:#222;border:none;border-radius:50px;color:white;margin:10px 0}
-    #sendBtn,#postBtn{background:var(--a);color:#000;border:none;padding:14px 20px;border-radius:50px;font-weight:800;cursor:pointer}
-    footer{padding:15px;text-align:center;color:var(--s);font-size:13px}
+    :root{--blue:#007aff;--cyan:#00f5d4;--dark:#000;--card:#0f0f0f;--border:#333;}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Inter',sans-serif;background:var(--dark);color:#e4e4e7;min-height:100vh;overflow-x:hidden}
+    .container{max-width:600px;margin:0 auto;padding:0 20px}
+    header{background:var(--dark);padding:16px 20px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+    .header{display:flex;justify-content:space-between;align-items:center}
+    .logo{font-size:24px;font-weight:700;color:var(--blue)} 
+    .balance{background:var(--card);padding:8px 16px;border-radius:99px;font-family:'JetBrains Mono',monospace;font-weight:600;display:flex;align-items:center;gap:8px}
+    .coin{width:20px;height:20px;background:var(--cyan);border-radius:50%;display:grid;place-items:center;color:#000;font-size:10px;font-weight:bold}
+    .screen{display:none;padding:20px 0}
+    .active{display:block}
+    .welcome{text-align:center;padding:100px 20px 60px}
+    .title{font-size:32px;font-weight:700;background:linear-gradient(135deg,var(--blue),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:16px}
+    .subtitle{line-height:1.6;color:#888;margin-bottom:40px}
+    .btn{width:100%;padding:16px;background:var(--blue);color:#fff;border:none;border-radius:16px;font-size:17px;font-weight:600;cursor:pointer;box-shadow:0 8px 30px rgba(0,122,255,.3);transition:.3s}
+    .btn:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,122,255,.5)}
+    .post{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:16px}
+    .post-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+    .avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#9b59b6);display:grid;place-items:center;color:#fff;font-weight:bold}
+    .username{font-weight:600}
+    .time{font-size:13px;color:#888}
+    .post-actions{display:flex;gap:20px;margin-top:12px}
+    .act{display:flex;align-items:center;gap:6px;color:#888;cursor:pointer}
+    .act.reward{color:var(--cyan);font-weight:600}
+    .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--dark);border-top:1px solid var(--border);display:flex;padding:10px 0}
+    .nav-item{flex:1;text-align:center;color:#666;cursor:pointer;padding:8px}
+    .nav-item.active{color:var(--blue)}
+    .nav-item svg{width:26px;height:26px}
   </style>
 </head>
 <body>
   <header>
-    <img src="https://i.imgur.com/LQuakpq.png" alt="LockGram">
-    <h1>LockGram Mini</h1>
-    <p>Balance: <span id="balance">0</span> LC</p>
-    <p id="timer">Connect wallet to farm</p>
+    <div class="header container">
+      <div class="logo">LockGram</div>
+      <div class="balance" id="balanceDisplay">
+        <div class="coin">LC</div>
+        <span id="coins">0</span>
+      </div>
+    </div>
   </header>
 
-  <div class="tabs">
-    <div class="tab active" onclick="openTab('farm')">Farm</div>
-    <div class="tab" onclick="checkWallet('chat')">Chat</div>
-    <div class="tab" onclick="checkWallet('journey')">Journey</div>
+  <!-- Welcome -->
+  <div id="welcome" class="screen active welcome container">
+    <h1 class="title">Welcome to LockGram</h1>
+    <p class="subtitle">Private chats • Earn real LockCoins • 100% on-chain rewards<br>No ads. No tracking. Just you and the future.</p>
+    <button class="btn" id="connectBtn">Connect TON Wallet</button>
   </div>
 
-  <!-- FARM -->
-  <div id="farm" class="content active">
-    <div id="connectContainer"></div>
-    <p id="addr"></p>
-    <p id="status" style="color:var(--a);margin:15px 0">Connect wallet = +50 LC bonus</p>
-    <button class="btn" onclick="invite()">Invite Friend (+10 LC)</button>
-    <button class="btn" onclick="checkIn()">Daily Check-In (+5 LC)</button>
-  </div>
-
-  <!-- CHAT (locked until wallet) -->
-  <div id="chat" class="content">
-    <div id="chatLocked" class="locked">
-      <h2>Wallet Required</h2>
-      <p>You must connect your TON wallet to chat</p>
-    </div>
-    <div id="chatUnlocked" style="display:none">
-      <div id="messages"></div>
-      <input type="text" id="chatInput" placeholder="Say something..." maxlength="200">
-      <button id="sendBtn">Send</button>
-    </div>
-  </div>
-
-  <!-- JOURNEY (locked until wallet) -->
-  <div id="journey" class="content">
-    <div id="journeyLocked" class="locked">
-      <h2>Wallet Required</h2>
-      <p>Connect wallet to share your journey</p>
-    </div>
-    <div id="journeyUnlocked" style="display:none">
-      <div id="feed"></div>
-      <textarea id="postInput" placeholder="Share your farming journey..." maxlength="300" rows="3"></textarea>
-      <button id="postBtn">Post Journey</button>
+  <!-- Main App -->
+  <div id="app" class="screen">
+    <div id="feed" class="screen active container">
+      <div class="post">
+        <div class="post-header">
+          <div class="avatar">A</div>
+          <div>
+            <div class="username">@alex_web3</div>
+            <div class="time">now</div>
+          </div>
+        </div>
+        <div>Gang, just earned 42 LockCoins for this post! Privacy + money in one app is insane</div>
+        <div class="post-actions">
+          <div class="act">Like 28</div>
+          <div class="act">Comment 9</div>
+          <div class="act reward" onclick="earn(42)">Claim +42 LC</div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <footer>Only real farmers chat here • Connect wallet now</footer>
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <div class="nav-item active" onclick="nav('feed')"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg><div>Feed</div></div>
+    <div class="nav-item" onclick="alert('AI coming v2')"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><div>AI</div></div>
+    <div class="nav-item" onclick="alert('Earnings page v2')"><svg fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><text x="12" y="16" text-anchor="middle" fill="#000" font-size="9">LC</text></svg><div>Earn</div></div>
+    <div class="nav-item" onclick="alert('Profile v2')"><svg fill="currentColor" viewBox="0 0 0 24 24"><circle cx="12" cy="6" r="4"/><path d="M20 18v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/></svg><div>Me</div></div>
+  </div>
 
   <script>
-    Telegram.WebApp.ready(); Telegram.WebApp.expand();
-    const user = Telegram.WebApp.initDataUnsafe.user || {};
-    let balance = 0, wallet = null, tonConnectUI = null, farming = null;
+    const tg = window.Telegram.WebApp;
+    tg.ready(); tg.expand();
+    tg.setHeaderColor('#000000');
+    tg.setBackgroundColor('#000000');
 
-    balance = parseInt(localStorage.getItem('lockgram_balance') || '0');
-    document.getElementById('balance').textContent = balance;
+    let balance = 0;
+    const coinsEl = document.getElementById('coins');
 
-    // TON Connect
-    function initTC() {
-      if (!window.TON_CONNECT_UI) return setTimeout(initTC, 300);
-      tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-        manifestUrl: 'https://meek-creponne-1338a7.netlify.app/manifest.json',
-        buttonRootId: 'connectContainer'
-      });
-      tonConnectUI.onStatusChange(w => {
-        wallet = w;
-        if (w) {
-          document.getElementById('addr').textContent = w.account.address.slice(0,6)+'...'+w.account.address.slice(-4);
-          document.getElementById('status').textContent = 'Farming +1 LC/min';
-          if (!localStorage.getItem('first_connect')) { addCoins(50); localStorage.setItem('first_connect','1'); }
-          startFarming();
-          unlockSocial(); // <— THIS UNLOCKS CHAT & JOURNEY
-        }
-      });
-    }
-    initTC();
+    // TON Connect (real wallet!)
+    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+      manifestUrl: 'https://lockgram.com/tonconnect-manifest.json', // create this tiny file on your domain
+      buttonRootId: 'connectBtn'
+    });
 
-    // Unlock chat & journey when wallet connects
-    function unlockSocial() {
-      document.getElementById('chatLocked').style.display = 'none';
-      document.getElementById('chatUnlocked').style.display = 'block';
-      document.getElementById('journeyLocked').style.display = 'none';
-      document.getElementById('journeyUnlocked').style.display = 'block';
-      loadMessages();
-    }
-
-    function Farming() {
-      if (farming) return;
-      farming = setInterval(() => {
-        if (document.visibilityState === 'visible' && wallet) {
-          addCoins(1);
-          document.getElementById('timer').textContent = 'Farming live +1 LC/min';
-        }
-      }, 60000);
-    }
-    function stopFarming() { clearInterval(farming); farming = null; }
-
-    function addCoins(n) {
-      balance += n;
-      document.getElementById('balance').textContent = balance;
-      localStorage.setItem('lockgram_balance', balance);
-      Telegram.WebApp.HapticFeedback.impactOccurred('medium');
-      if (n>1) postAuto(`just farmed +\( {n} LC! Total: \){balance} LC`);
-    }
-
-    // Block tab switch if no wallet
-    function checkWallet(tab) {
-      if (!wallet) {
-        Telegram.WebApp.showAlert('Connect your TON wallet first to join the community!');
-        return;
+    tonConnectUI.onStatusChange(wallet => {
+      if (wallet) {
+        document.getElementById('welcome').classList.remove('active');
+        document.getElementById('app').classList.add('active');
+        loadBalance(wallet.account.address);
+        tg.MainButton.setText = "Invite Friends →";
+        tg.MainButton.show();
+        tg.MainButton.onClick(() => tg.shareUrl('https://t.me/Lockgramapp_bot/Lockgrammini', 'Join LockGram and earn with me!'));
       }
-      openTab(tab);
+    });
+
+    async function loadBalance(address) {
+      // Replace with your real backend later – for now fake it till we make it
+      balance = 1247;
+      coinsEl.textContent = balance.toLocaleString();
     }
 
-    function openTab(name) {
-      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-      document.querySelectorAll('.content').forEach(c=>c.classList.remove('active'));
-      document.querySelector(`.tab[onclick="checkWallet('${name}')"]`)?.classList.add('active') || 
-      document.querySelector(`.tab[onclick="openTab('${name}')"]`).classList.add('active');
-      document.getElementById(name).classList.add('active');
-      if ((name === 'chat' || name === 'journey') && wallet) loadMessages();
+    function earn(amount) {
+      balance += amount;
+      coinsEl.textContent = balance.toLocaleString();
+      tg.HapticFeedback.notificationOccurred('success');
+      // Later: call your backend → mint Jetton to user
     }
 
-    // Chat & Feed (same as before)
-    function saveMessage(type, text) {
-      const msgs = JSON.parse(localStorage.getItem('lockgram_messages') || '[]');
-      msgs.push({
-        id: Date.now(),
-        type,
-        name: user.first_name || 'Farmer',
-        username: user.username ? '@'+user.username : '',
-        text,
-        time: new Date().toLocaleTimeString([], {hour:'
+    function nav(id) {
+      document.querySelectorAll('#app .screen').forEach(s=>s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+      event.target.closest('.nav-item').classList.add('active');
+    }
+
+    // Auto-skip welcome if already connected (for testing)
+    if (tonConnectUI.connected) {
+      document.getElementById('welcome').classList.remove('active');
+      document.getElementById('app').classList.add('active');
+    }
+  </script>
+</body>
+</html>
