@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LockGram - Web3 Social Network</title>
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            --primary-dark: #1d4ed8;
+            --secondary-color: #8b5cf6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --bg-page: #0a0a0a;
+            --bg-card: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --border-color: #2a2a2a;
+            --transition-normal: 0.3s ease;
+            --border-radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity var(--transition-normal), visibility var(--transition-normal);
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loading-content {
+            text-align: center;
+            max-width: 300px;
+            padding: 20px;
+        }
+
+        .lockgram-logo {
+            margin-bottom: 30px;
+        }
+
+        .logo-img {
+            width: 80px;
+            height: 80px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* App Container */
+        .app-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Get Started Screen */
+        .get-started-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .get-started-screen.hidden {
+            display: none;
+        }
+
+        .get-started-content {
+            text-align: center;
+            max-width: 350px;
+            padding: 40px 20px;
+        }
+
+        .get-started-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .get-started-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, var(--success-color), #059669);
+        }
+
+        /* Main Content */
+        .main-content {
+            display: none;
+            flex: 1;
+            padding: 20px;
+            max-width: 400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .main-content.active {
+            display: block;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Cards */
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .card h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        /* Profile Section */
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .profile-username {
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        /* Balance Section */
+        .balance-display {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .balance-amount {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .balance-currency {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* Invite Section */
+        .invites-section {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .invites-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            padding: 5px 0;
+        }
+
+        .invite-count {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .info-text {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 10px;
+            line-height: 1.4;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 3px solid var(--warning-color);
+        }
+
+        /* Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 100;
+        }
+
+        .nav-item {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            padding: 10px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            text-align: center;
+            flex: 1;
+            font-size: 0.9rem;
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .nav-item:hover {
+            color: var(--text-primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .app-container {
+                padding-bottom: 80px;
+            }
+            
+            .main-content {
+                padding: 15px;
+            }
+            
+            .get-started-content {
+                padding: 30px 15px;
+            }
+        }
+
+        /* Hidden utility */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="app-container">
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="loading-screen">
+            <div class="loading-content">
+                <div class="lockgram-logo">
+                    <div class="profile-avatar">🔒</div>
+                    <h1>LockGram 🔒</h1>
+                </div>
+                <div class="loading-spinner"></div>
+                <p>Loading your Web3 social network...</p>
+            </div>
+        </div>
+
+        <!-- Get Started Screen -->
+        <div id="get-started-screen" class="get-started-screen hidden">
+            <div class="get-started-content">
+                <div class="lockgram-logo">
+                    <div class="profile-avatar">🔒</div>
+                    <h1>LockGram 🔒</h1>
+                </div>
+                <h2 class="get-started-title">Welcome to LockGram</h2>
+                <p class="get-started-subtitle">The future of decentralized social networking</p>
+                <button class="btn" onclick="app.showMainContent()">Get Started</button>
+                <button class="btn btn-secondary" onclick="app.connectWallet()">Connect Wallet</button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div id="main-content" class="main-content">
+            <div class="header">
+                <h1>LockGram</h1>
+                <p>Web3 Social Network</p>
+            </div>
+
+            <!-- Feed Tab -->
+            <div id="feed-tab" class="tab-content active">
+                <div class="card">
+                    <h3>Latest Posts</h3>
+                    <p style="color: var(--text-secondary);">Your feed will appear here once you connect with other users.</p>
+                    <button class="btn" style="margin-top: 15px;" onclick="app.createPost()">Create Post</button>
+                </div>
+            </div>
+
+            <!-- Profile Tab -->
+            <div id="profile-tab" class="tab-content">
+                <div class="card">
+                    <div class="profile-avatar" id="profile-avatar">🔒</div>
+                    <div class="profile-username" id="profile-username">@CryptoCreator</div>
+                    
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <div class="stat-number" id="stat-posts">0</div>
+                            <div class="stat-label">Posts</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="stat-followers">8,934</div>
+                            <div class="stat-label">Followers</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="stat-following">247</div>
+                            <div class="stat-label">Following</div>
+                        </div>
+                    </div>
+
+                    <button class="btn" style="margin-top: 20px;" onclick="app.editProfile()">Edit Profile</button>
+                </div>
+
+                <!-- Balance Section -->
+                <div class="card">
+                    <h3>Wallet & Balance</h3>
+                    <div class="balance-display">
+                        <div class="balance-amount" id="balance-amount">0</div>
+                        <div class="balance-currency">LCK</div>
+                    </div>
+                    <button class="btn btn-secondary" onclick="app.connectWallet()">Connect Wallet</button>
+                </div>
+
+                <!-- Invite Section -->
+                <div class="card">
+                    <h3>Invite Friends</h3>
+                    <button class="btn" onclick="app.inviteFriends()">Invite Friends</button>
+                    
+                    <div class="invites-section">
+                        <div class="invites-row">
+                            <span>Pending Invites:</span>
+                            <span class="invite-count" id="pending-count">0</span>
+                        </div>
+                        <div class="invites-row">
+                            <span>Verified Invites:</span>
+                            <span class="invite-count" id="verified-count">0</span>
+                        </div>
+                        <div class="info-text">
+                            ⚠️ Invite rewards are verified after 24 hours of activity to prevent fraud.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Referral Link -->
+                <div class="card">
+                    <h3>Your Referral Link</h3>
+                    <div style="background: rgba(255, 255, 255, 0.1); padding: 10px; border-radius: 8px; font-size: 0.9rem; margin: 10px 0;" id="referral-link">
+                        https://t.me/Lockgramapp_bot?start=ref_123456789
+                    </div>
+                    <button class="btn" onclick="app.copyReferralLink()">Copy Link</button>
+                </div>
+            </div>
+
+            <!-- Wallet Tab -->
+            <div id="wallet-tab" class="tab-content">
+                <div class="card">
+                    <h3>Wallet Connection</h3>
+                    <div id="wallet-status" style="text-align: center; margin: 20px 0;">
+                        <p style="color: var(--text-secondary);">No wallet connected</p>
+                    </div>
+                    <button class="btn" onclick="app.connectWallet()">Connect Wallet</button>
+                    <button class="btn" onclick="app.disconnectWallet()">Disconnect</button>
+                </div>
+
+                <div class="card">
+                    <h3>Transaction History</h3>
+                    <p style="color: var(--text-secondary);">Your transactions will appear here.</p>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settings-tab" class="tab-content">
+                <div class="card">
+                    <h3>App Settings</h3>
+                    <button class="btn" onclick="app.toggleTheme()">Toggle Theme</button>
+                    <button class="btn" onclick="app.clearData()">Clear Data</button>
+                    <button class="btn" onclick="app.showAbout()">About LockGram</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <button class="nav-item active" data-tab="feed" onclick="app.switchTab('feed')">
+                🏠<br>Feed
+            </button>
+            <button class="nav-item" data-tab="profile" onclick="app.switchTab('profile')">
+                👤<br>Profile
+            </button>
+            <button class="nav-item" data-tab="wallet" onclick="app.switchTab('wallet')">
+                💰<br>Wallet
+            </button>
+            <button class="nav-item" data-tab="settings" onclick="app.switchTab('settings')">
+                ⚙️<br>Settings
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Simple, Bulletproof Loading Screen
+        setTimeout(() => {
+            const loadingScreen = document.getElementById('loading-screen');
+            const getStartedScreen = document.getElementById('get-started-screen');
+            
+            if (loadingScreen) {
+                loadingScreen.classList.add('hidden');
+            }
+            
+            if (getStartedScreen) {
+                getStartedScreen.classList.remove('hidden');
+            }
+            
+            console.log('LockGram: Loading complete, showing get started screen');
+        }, 2000);
+
+        // LockGram App Class
+        class LockGramApp {
+            constructor() {
+                this.currentUser = {
+                    userId: '123456789',
+                    username: '@CryptoCreator',
+                    walletAddress: null,
+                    balance: 0,
+                    lockcoinsEarned: 0,
+                    posts: 0,
+                    followers: 8934,
+                    following: 247,
+                    invitedFriends: 0,
+                    pendingInvites: [],
+                    verifiedInvites: []
+                };
+                
+                this.currentTab = 'feed';
+                this.isDarkTheme = true;
+                this.posts = [];
+                
+                this.init();
+            }
+
+            init() {
+                console.log('LockGram: Initializing app...');
+                this.setupEventListeners();
+                this.updateProfileDisplay();
+                console.log('LockGram: App initialized');
+            }
+
+            setupEventListeners() {
+                // Navigation
+                const navItems = document.querySelectorAll('.nav-item');
+                navItems.forEach(item => {
+                    item.addEventListener('click', () => {
+                        const tab = item.getAttribute('data-tab');
+                        this.switchTab(tab);
+                    });
+                });
+            }
+
+            showMainContent() {
+                const getStartedScreen = document.getElementById('get-started-screen');
+                const mainContent = document.getElementById('main-content');
+                
+                if (getStartedScreen) {
+                    getStartedScreen.classList.add('hidden');
+                }
+                
+                if (mainContent) {
+                    mainContent.classList.add('active');
+                }
+                
+                console.log('LockGram: Main content shown');
+            }
+
+            switchTab(tabName) {
+                // Update navigation
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+                // Update content
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById(`${tabName}-tab`).classList.add('active');
+
+                this.currentTab = tabName;
+                console.log(`LockGram: Switched to ${tabName} tab`);
+            }
+
+            updateProfileDisplay() {
+                // Update username
+                document.getElementById('profile-username').textContent = this.currentUser.username;
+                
+                // Update balance
+                document.getElementById('balance-amount').textContent = this.currentUser.balance;
+                
+                // Update stats
+                document.getElementById('stat-posts').textContent = this.currentUser.posts;
+                document.getElementById('stat-followers').textContent = this.currentUser.followers.toLocaleString();
+                document.getElementById('stat-following').textContent = this.currentUser.following;
+                
+                // Update invite counts
+                document.getElementById('pending-count').textContent = this.currentUser.pendingInvites.length;
+                document.getElementById('verified-count').textContent = this.currentUser.verifiedInvites.length;
+                
+                // Update referral link
+                const referralLink = document.getElementById('referral-link');
+                if (referralLink) {
+                    referralLink.textContent = `https://t.me/Lockgramapp_bot?start=ref_${this.currentUser.userId}`;
+                }
+            }
+
+            connectWallet() {
+                // Simulate wallet connection
+                setTimeout(() => {
+                    this.currentUser.walletAddress = '0x742d35Cc6634C0532925a3b8D6e8E7C3';
+                    document.getElementById('wallet-status').innerHTML = `
+                        <p style="color: var(--success-color);">✅ Connected</p>
+                        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 5px;">${this.currentUser.walletAddress}</p>
+                    `;
+                    this.updateProfileDisplay();
+                    alert('Wallet connected successfully!');
+                }, 1000);
+            }
+
+            disconnectWallet() {
+                this.currentUser.walletAddress = null;
+                document.getElementById('wallet-status').innerHTML = '<p style="color: var(--text-secondary);">No wallet connected</p>';
+                this.updateProfileDisplay();
+                alert('Wallet disconnected');
+            }
+
+            inviteFriends() {
+                const link = `https://t.me/Lockgramapp_bot?start=ref_${this.currentUser.userId}`;
+                
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Join LockGram',
+                        text: 'Check out LockGram - The Web3 Social Network!',
+                        url: link
+                    });
+                } else {
+                    navigator.clipboard.writeText(link).then(() => {
+                        alert('Referral link copied to clipboard!');
+                    });
+                }
+            }
+
+            copyReferralLink() {
+                const link = document.getElementById('referral-link').textContent;
+                navigator.clipboard.writeText(link).then(() => {
+                    alert('Referral link copied to clipboard!');
+                });
+            }
+
+            createPost() {
+                const content = prompt('What would you like to post?');
+                if (content) {
+                    this.currentUser.posts += 1;
+                    this.updateProfileDisplay();
+                    alert('Post created successfully!');
+                }
+            }
+
+            editProfile() {
+                const newUsername = prompt('Enter new username:', this.currentUser.username);
+                if (newUsername && newUsername !== this.currentUser.username) {
+                    this.currentUser.username = newUsername;
+                    this.updateProfileDisplay();
+                    alert('Profile updated successfully!');
+                }
+            }
+
+            toggleTheme() {
+                this.isDarkTheme = !this.isDarkTheme;
+                document.body.style.filter = this.isDarkTheme ? 'none' : 'invert(1) hue-rotate(180deg)';
+                alert(`Theme switched to ${this.isDarkTheme ? 'Dark' : 'Light'} mode`);
+            }
+
+            clearData() {
+                if (confirm('Are you sure you want to clear all data?')) {
+                    localStorage.clear();
+                    location.reload();
+                }
+            }
+
+            showAbout() {
+                alert('LockGram v1.0\n\nA decentralized Web3 social network built for the future of social interaction.');
+            }
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', () => {
+            window.app = new LockGramApp();
+            console.log('LockGram: App ready');
+        });
+    </script>
+</body>
+</html>
