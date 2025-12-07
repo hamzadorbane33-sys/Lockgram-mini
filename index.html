@@ -1,0 +1,3165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LockGram 🔒 - Web3 Social Network</title>
+    <style>
+        /* LockGram - Professional Web3 Social Network Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0A0B0F;
+            color: #E5E7EB;
+            line-height: 1.5;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* CSS Variables */
+        :root {
+            --bg-page: #0A0B0F;
+            --bg-surface: rgba(26, 28, 37, 0.5);
+            --border-subtle: rgba(255, 255, 255, 0.1);
+            --text-primary: #E5E7EB;
+            --text-secondary: #808593;
+            --text-tertiary: #4E525E;
+            --primary-blue: #4A8CFF;
+            --primary-purple: #A076F9;
+            --gradient-accent: linear-gradient(120deg, #4A8CFF, #A076F9);
+            --success: #22C55E;
+            --warning: #F59E0B;
+            --error: #EF4444;
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+            --space-2xl: 48px;
+            --space-3xl: 64px;
+            --transition-fast: 200ms ease-out;
+            --transition-normal: 250ms cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        /* Light Theme */
+        [data-theme="light"] {
+            --bg-page: #F8F9FA;
+            --bg-surface: rgba(255, 255, 255, 0.6);
+            --border-subtle: rgba(0, 0, 0, 0.08);
+            --text-primary: #111827;
+            --text-secondary: #6B7280;
+            --text-tertiary: #D1D5DB;
+        }
+
+        .app-container {
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-page);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity var(--transition-normal), visibility var(--transition-normal);
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        /* Get Started Screen */
+        .get-started-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-page);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9998;
+            transition: opacity var(--transition-normal), visibility var(--transition-normal);
+            padding: var(--space-lg);
+        }
+
+        .get-started-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .get-started-content {
+            text-align: center;
+            max-width: 450px;
+            width: 100%;
+        }
+
+        .get-started-info {
+            margin: var(--space-2xl) 0;
+        }
+
+        .get-started-features {
+            margin: var(--space-2xl) 0;
+            text-align: left;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            margin: var(--space-md) 0;
+            padding: var(--space-md);
+            background: var(--bg-surface);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .feature-icon {
+            font-size: 1.5rem;
+            min-width: 2rem;
+        }
+
+        .feature-text {
+            font-size: 1rem;
+            color: var(--text-primary);
+        }
+
+        .get-started-btn {
+            background: var(--gradient-accent);
+            border: none;
+            border-radius: var(--border-radius);
+            padding: var(--space-lg) var(--space-2xl);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-xs);
+            margin: var(--space-xl) auto;
+            min-width: 280px;
+        }
+
+        .get-started-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(74, 140, 255, 0.3);
+        }
+
+        .btn-text {
+            font-size: 1.2rem;
+        }
+
+        .btn-subtext {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .invite-info {
+            margin-top: var(--space-lg);
+            padding: var(--space-md);
+            background: rgba(74, 140, 255, 0.1);
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(74, 140, 255, 0.2);
+        }
+
+        .invite-info p {
+            margin: 0;
+            color: var(--primary-blue);
+            font-weight: 500;
+        }
+
+        /* Earnings Section */
+        .earnings-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: var(--space-md);
+            margin: var(--space-lg) 0;
+        }
+
+        .earning-item {
+            text-align: center;
+            padding: var(--space-md);
+            background: var(--bg-surface);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .referral-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-md);
+            margin: var(--space-lg) 0;
+            padding: var(--space-md);
+            background: var(--bg-surface);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .referral-item {
+            text-align: center;
+            padding: var(--space-sm);
+        }
+
+        .referral-count {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: var(--space-xs);
+        }
+
+        .referral-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .invite-info {
+            margin: var(--space-lg) 0;
+            padding: var(--space-md);
+            background: var(--bg-surface);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .invite-note {
+            margin: 0;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: var(--text-secondary);
+        }
+
+        .earning-amount {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: var(--space-xs);
+        }
+
+        .earning-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .earning-actions {
+            margin-top: var(--space-lg);
+            text-align: center;
+        }
+
+        .withdraw-btn {
+            background: var(--success);
+            border: none;
+            border-radius: var(--border-radius);
+            padding: var(--space-md) var(--space-xl);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .withdraw-btn:hover:not(:disabled) {
+            background: #1ea34a;
+            transform: translateY(-1px);
+        }
+
+        .withdraw-btn:disabled {
+            background: var(--text-tertiary);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        /* Wallet Connection Modal Styles */
+        .wallet-options {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+            margin: var(--space-xl) 0;
+        }
+
+        .wallet-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-lg);
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            text-align: left;
+            width: 100%;
+        }
+
+        .wallet-btn:hover {
+            background: var(--bg-hover);
+            border-color: var(--primary-blue);
+            transform: translateY(-1px);
+        }
+
+        .wallet-icon {
+            font-size: 1.5rem;
+            min-width: 2rem;
+        }
+
+        .wallet-info {
+            flex: 1;
+        }
+
+        .wallet-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--space-xs);
+        }
+
+        .wallet-desc {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .wallet-benefits {
+            margin-top: var(--space-xl);
+            text-align: left;
+        }
+
+        .wallet-benefits h3 {
+            margin-bottom: var(--space-md);
+            color: var(--text-primary);
+        }
+
+        .wallet-benefits ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .wallet-benefits li {
+            padding: var(--space-sm) 0;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        /* Withdraw Form */
+        .withdraw-form {
+            text-align: left;
+        }
+
+        .balance-info {
+            background: var(--bg-surface);
+            padding: var(--space-md);
+            border-radius: var(--border-radius);
+            margin-bottom: var(--space-lg);
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: var(--space-lg);
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: var(--space-sm);
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: var(--space-md);
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--border-radius);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+        }
+
+        .withdraw-actions {
+            display: flex;
+            gap: var(--space-md);
+            margin-top: var(--space-xl);
+        }
+
+        .btn {
+            padding: var(--space-md) var(--space-lg);
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            flex: 1;
+        }
+
+        .btn-primary {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #3a7ae8;
+        }
+
+        .btn-secondary {
+            background: var(--bg-surface);
+            color: var(--text-primary);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-hover);
+        }
+
+        .wallet-connection-info h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: var(--space-md);
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .wallet-connection-info p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .wallet-options {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+            margin: var(--space-2xl) 0;
+        }
+
+        .wallet-btn {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: var(--space-lg);
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            text-align: left;
+        }
+
+        .wallet-btn:hover {
+            background: rgba(74, 140, 255, 0.1);
+            border-color: var(--primary-blue);
+            transform: translateY(-2px);
+        }
+
+        .wallet-icon {
+            font-size: 2rem;
+            margin-right: var(--space-lg);
+            width: 50px;
+            text-align: center;
+        }
+
+        .wallet-info {
+            flex: 1;
+        }
+
+        .wallet-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--space-xs);
+        }
+
+        .wallet-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .wallet-benefits {
+            margin-top: var(--space-2xl);
+            padding: var(--space-lg);
+            background: rgba(74, 140, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(74, 140, 255, 0.2);
+        }
+
+        .wallet-benefits h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: var(--space-md);
+            color: var(--primary-blue);
+        }
+
+        .wallet-benefits ul {
+            list-style: none;
+            text-align: left;
+        }
+
+        .wallet-benefits li {
+            padding: var(--space-sm) 0;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .loading-content {
+            text-align: center;
+            max-width: 300px;
+        }
+
+        .lockgram-logo {
+            margin-bottom: var(--space-xl);
+        }
+
+        .logo-icon {
+            font-size: 4rem;
+        }
+
+        .logo-img, .security-logo {
+            width: 4rem;
+            height: 4rem;
+            object-fit: contain;
+            filter: brightness(1.2) contrast(1.1);
+        }
+
+        .security-logo {
+            width: 1.5rem;
+            height: 1.5rem;
+            vertical-align: middle;
+            margin-right: 0.5rem;
+        }
+
+        .logo-fallback {
+            display: inline-block;
+            vertical-align: middle;
+            margin: 0 var(--space-sm);
+        }
+
+        .logo-fallback.security-logo {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+
+        .lock-icon {
+            font-size: 1.2rem;
+            margin-left: 0.3rem;
+            vertical-align: middle;
+        }
+
+        .logo-img + .logo-icon {
+            margin-left: 0.5rem;
+            font-size: 2.5rem;
+        }
+            margin-bottom: var(--space-md);
+            display: block;
+        }
+
+        .lockgram-logo h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-subtle);
+            border-top: 3px solid var(--primary-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto var(--space-lg);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-content p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            transition: opacity var(--transition-normal);
+        }
+
+        .main-content.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Header */
+        .app-header {
+            background: var(--bg-surface);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: var(--space-lg);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-md);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .logo-section .logo-icon {
+            font-size: 1.5rem;
+        }
+
+        .logo-section h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: var(--space-sm);
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all var(--transition-fast);
+        }
+
+        .icon-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 12px 0 rgba(74, 140, 255, 0.3);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--error);
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 16px;
+            text-align: center;
+        }
+
+        .lockcoin-balance {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            font-size: 0.9rem;
+        }
+
+        .balance-label {
+            color: var(--text-secondary);
+        }
+
+        .balance-amount {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .balance-change {
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .balance-change.positive {
+            color: var(--success);
+        }
+
+        .balance-change.negative {
+            color: var(--error);
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            display: flex;
+            background: var(--bg-surface);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border-subtle);
+            padding: var(--space-sm) var(--space-lg);
+            position: sticky;
+            bottom: 0;
+            z-index: 100;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: var(--space-sm);
+            border: none;
+            background: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all var(--transition-fast);
+            min-height: 48px;
+        }
+
+        .nav-item:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            color: var(--primary-blue);
+            background: rgba(74, 140, 255, 0.15);
+        }
+
+        .nav-icon {
+            font-size: 1.2rem;
+        }
+
+        .nav-label {
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        .nav-item.mint-action {
+            background: var(--gradient-accent);
+            color: white;
+            border-radius: 16px;
+            margin: 0 var(--space-xs);
+        }
+
+        .nav-item.mint-action .nav-icon {
+            font-size: 1.4rem;
+        }
+
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            padding: var(--space-lg);
+            padding-bottom: calc(var(--space-lg) + 80px);
+            max-width: 768px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeInUp var(--transition-normal);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tab-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-xl);
+        }
+
+        .tab-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .security-status, .ai-status, .mint-stats, .governance-stats {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .security-indicator {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+            padding: 4px var(--space-sm);
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--success);
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-indicator.online {
+            background: var(--success);
+        }
+
+        /* Cards */
+        .create-post-card, .mint-card, .proposal-card, .profile-header {
+            background: var(--bg-surface);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: var(--space-lg);
+            margin-bottom: var(--space-lg);
+            transition: all var(--transition-normal);
+        }
+
+        .create-post-card:hover, .mint-card:hover, .proposal-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 0 12px 0 rgba(74, 140, 255, 0.3);
+        }
+
+        .create-post-card {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gradient-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .create-post-btn {
+            flex: 1;
+            text-align: left;
+            padding: var(--space-md);
+            background: none;
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all var(--transition-fast);
+        }
+
+        .create-post-btn:hover {
+            border-color: var(--primary-blue);
+            color: var(--text-primary);
+        }
+
+        /* Posts */
+        .posts-container {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-lg);
+        }
+
+        .post-card {
+            background: var(--bg-surface);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: var(--space-lg);
+            transition: all var(--transition-normal);
+        }
+
+        .post-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 0 12px 0 rgba(74, 140, 255, 0.3);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            margin-bottom: var(--space-md);
+        }
+
+        .post-user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gradient-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .post-user-info {
+            flex: 1;
+        }
+
+        .post-user-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .post-user-address {
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .post-time {
+            font-size: 0.8rem;
+            color: var(--text-tertiary);
+        }
+
+        .post-content {
+            margin-bottom: var(--space-md);
+            line-height: 1.6;
+        }
+
+        .post-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--space-lg);
+            padding-top: var(--space-md);
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .post-action {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: 8px;
+            transition: all var(--transition-fast);
+        }
+
+        .post-action:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .post-action.liked {
+            color: var(--error);
+        }
+
+        .post-action.rewarded {
+            color: var(--success);
+        }
+
+        /* Chat */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 60vh;
+            background: var(--bg-surface);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: var(--space-lg);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-lg);
+        }
+
+        .message {
+            display: flex;
+            gap: var(--space-sm);
+            max-width: 80%;
+        }
+
+        .message.ai-message {
+            align-self: flex-start;
+        }
+
+        .message.user-message {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--gradient-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .message-content {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .message-bubble {
+            padding: var(--space-md);
+            border-radius: 16px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .ai-message .message-bubble {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .user-message .message-bubble {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            color: var(--text-tertiary);
+            text-align: right;
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: var(--space-sm);
+            padding: var(--space-lg);
+            border-top: 1px solid var(--border-subtle);
+            background: var(--bg-surface);
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: var(--space-md);
+            background: none;
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color var(--transition-fast);
+        }
+
+        .chat-input:focus {
+            border-color: var(--primary-blue);
+        }
+
+        .chat-input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .send-btn {
+            width: 48px;
+            height: 48px;
+            background: var(--gradient-accent);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-fast);
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .send-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Profile */
+        .profile-header {
+            text-align: center;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--gradient-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto var(--space-md);
+        }
+
+        .profile-info h3 {
+            margin-bottom: var(--space-xs);
+            color: var(--text-primary);
+        }
+
+        .wallet-address {
+            font-family: 'Courier New', monospace;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: var(--space-md);
+        }
+
+        .profile-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: var(--space-lg);
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .stat-number {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: var(--space-md);
+            margin-bottom: var(--space-xl);
+        }
+
+        .action-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+            padding: var(--space-md);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all var(--transition-fast);
+        }
+
+        .action-btn.primary {
+            background: var(--gradient-accent);
+            color: white;
+        }
+
+        .action-btn.secondary {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .profile-section {
+            background: var(--bg-surface);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: var(--space-lg);
+            margin-bottom: var(--space-lg);
+        }
+
+        .profile-section h4 {
+            margin-bottom: var(--space-md);
+            color: var(--text-primary);
+        }
+
+        .security-items, .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+
+        .security-item, .activity-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .security-icon, .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .security-info, .activity-info {
+            flex: 1;
+        }
+
+        .security-title, .activity-title {
+            display: block;
+            color: var(--text-primary);
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .security-status {
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .security-status.active {
+            color: var(--success);
+        }
+
+        .activity-time {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity var(--transition-normal);
+        }
+
+        .modal-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .modal {
+            background: var(--bg-surface);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow: hidden;
+            animation: modalSlideIn var(--transition-normal);
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-lg);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .modal-header h3 {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all var(--transition-fast);
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-content {
+            padding: var(--space-lg);
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            top: var(--space-lg);
+            right: var(--space-lg);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+
+        .toast {
+            background: var(--bg-surface);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: var(--space-md);
+            color: var(--text-primary);
+            min-width: 300px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            animation: toastSlideIn var(--transition-normal);
+            position: relative;
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--error);
+        }
+
+        .toast.warning {
+            border-left: 4px solid var(--warning);
+        }
+
+        .toast.info {
+            border-left: 4px solid #3b82f6;
+        }
+
+        @keyframes toastSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .content-area {
+                padding: var(--space-md);
+                padding-bottom: calc(var(--space-md) + 80px);
+            }
+            
+            .bottom-nav {
+                padding: var(--space-sm) var(--space-md);
+            }
+            
+            .nav-label {
+                display: none;
+            }
+            
+            .modal {
+                width: 95%;
+                margin: var(--space-md);
+            }
+            
+            .toast-container {
+                left: var(--space-md);
+                right: var(--space-md);
+            }
+            
+            .toast {
+                min-width: auto;
+            }
+            
+            /* Get Started Screen Responsive */
+            .get-started-screen {
+                padding: var(--space-md);
+            }
+            
+            .get-started-content {
+                max-width: 100%;
+            }
+            
+            .get-started-info h2 {
+                font-size: 1.5rem;
+            }
+            
+            .get-started-info p {
+                font-size: 1rem;
+            }
+
+            .feature-item {
+                padding: var(--space-sm);
+            }
+
+            .get-started-btn {
+                min-width: auto;
+                width: 100%;
+            }
+            
+            .wallet-btn {
+                padding: var(--space-md);
+            }
+            
+            .wallet-icon {
+                font-size: 1.5rem;
+                margin-right: var(--space-md);
+                width: 40px;
+            }
+            
+            .wallet-name {
+                font-size: 1.1rem;
+            }
+            
+            .wallet-benefits {
+                padding: var(--space-md);
+            }
+            
+            .wallet-benefits ul {
+                text-align: center;
+            }
+        }
+
+        /* Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Focus Styles for Accessibility */
+        button:focus,
+        input:focus,
+        textarea:focus {
+            outline: 2px solid var(--primary-blue);
+            outline-offset: 2px;
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-subtle);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-tertiary);
+        }
+    </style>
+    
+    <!-- Solana Wallet Detection -->
+    <script>
+        // Logo error handling
+        window.handleLogoError = function(img) {
+            console.warn('Logo failed to load, using fallback');
+            img.style.display = 'none';
+            
+            // Create fallback lock icon
+            const fallback = document.createElement('div');
+            fallback.innerHTML = '🔒';
+            fallback.style.fontSize = '2rem';
+            fallback.style.color = 'var(--primary-blue)';
+            fallback.className = 'logo-fallback';
+            
+            img.parentNode.insertBefore(fallback, img.nextSibling);
+        };
+        
+        // Detect Solana wallets
+        window.detectSolanaWallets = function() {
+            const wallets = {
+                phantom: typeof window.solana !== 'undefined' && window.solana.isPhantom,
+                solflare: typeof window.solflare !== 'undefined',
+                sollet: typeof window.sollet !== 'undefined',
+                mathwallet: typeof window.mathwallet !== 'undefined'
+            };
+            
+            console.log('Detected Solana wallets:', wallets);
+            return wallets;
+        };
+        
+        // Auto-detect on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const wallets = window.detectSolanaWallets();
+            
+            // Update wallet button states based on availability
+            if (!wallets.phantom) {
+                const phantomBtn = document.querySelector('.phantom-btn');
+                if (phantomBtn) {
+                    phantomBtn.style.opacity = '0.6';
+                    phantomBtn.style.cursor = 'not-allowed';
+                    phantomBtn.onclick = function() {
+                        window.open('https://phantom.app/', '_blank');
+                    };
+                }
+            }
+            
+            // Add error handling to all logo images
+            const logos = document.querySelectorAll('img[src*="i.imgur.com/b8Iyclt.png"]');
+            logos.forEach(img => {
+                img.onerror = function() {
+                    window.handleLogoError(this);
+                };
+            });
+        });
+    </script>
+</head>
+<body>
+    <!-- Main App Container -->
+    <div id="app" class="app-container">
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="loading-screen">
+            <div class="loading-content">
+                <div class="lockgram-logo">
+                    <img src="https://i.imgur.com/b8Iyclt_d.png" alt="LockGram Logo" class="logo-img">
+                    <h1>LockGram 🔒</h1>
+                </div>
+                <div class="loading-spinner"></div>
+                <p>Loading your Web3 social network...</p>
+            </div>
+        </div>
+
+        <!-- Get Started Screen -->
+        <div id="get-started-screen" class="get-started-screen hidden">
+            <div class="get-started-content">
+                <div class="lockgram-logo">
+                    <img src="https://i.imgur.com/b8Iyclt_d.png" alt="LockGram Logo" class="logo-img">
+                    <h1>LockGram 🔒</h1>
+                </div>
+                <div class="get-started-info">
+                    <h2>Welcome to Web3 Social!</h2>
+                    <p>Join the future of social networking with blockchain technology</p>
+                </div>
+                <div class="get-started-features">
+                    <div class="feature-item">
+                        <span class="feature-icon">💬</span>
+                        <span class="feature-text">Chat with AI & Friends</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">🎨</span>
+                        <span class="feature-text">Create & Mint Content</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">💎</span>
+                        <span class="feature-text">Earn LockCoin (LCK)</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">🔒</span>
+                        <span class="feature-text">End-to-end Encrypted</span>
+                    </div>
+                </div>
+                <button class="get-started-btn" onclick="app.startApp()">
+                    <span class="btn-text">🚀 Get Started</span>
+                    <span class="btn-subtext">Start exploring LockGram</span>
+                </button>
+                <div class="invite-info">
+                    <p><strong>💰 Earn 100 LCK</strong> by inviting friends!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div id="main-content" class="main-content hidden">
+            <!-- Top Header -->
+            <header class="app-header">
+                <div class="header-content">
+                    <div class="logo-section">
+                        <img src="https://i.imgur.com/b8Iyclt_d.png" alt="LockGram Logo" class="logo-img">
+                        <h1>LockGram 🔒</h1>
+                    </div>
+                    <div class="header-actions">
+                        <button class="icon-btn theme-toggle" id="theme-toggle">
+                            <span class="icon">🌙</span>
+                        </button>
+                        <button class="icon-btn notifications" id="notifications-btn">
+                            <span class="icon">🔔</span>
+                            <span class="notification-badge">3</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="lockcoin-balance">
+                    <span class="balance-label">Balance</span>
+                    <span class="balance-amount">1,247.83 LCK</span>
+                    <span class="balance-change positive">+12.5%</span>
+                </div>
+            </header>
+
+            <!-- Bottom Tab Navigation -->
+            <nav class="bottom-nav">
+                <button class="nav-item active" data-tab="feed">
+                    <span class="nav-icon">📱</span>
+                    <span class="nav-label">Feed</span>
+                </button>
+                <button class="nav-item" data-tab="chat">
+                    <span class="nav-icon">🤖</span>
+                    <span class="nav-label">AI Chat</span>
+                </button>
+                <button class="nav-item mint-action" data-tab="mint">
+                    <span class="nav-icon">✨</span>
+                    <span class="nav-label">Mint</span>
+                </button>
+                <button class="nav-item" data-tab="vote">
+                    <span class="nav-icon">🗳️</span>
+                    <span class="nav-label">Vote</span>
+                </button>
+                <button class="nav-item" data-tab="profile">
+                    <span class="nav-icon">👤</span>
+                    <span class="nav-label">Profile</span>
+                </button>
+            </nav>
+
+            <!-- Content Sections -->
+            <main class="content-area">
+                <!-- Feed Tab -->
+                <section id="feed-tab" class="tab-content active">
+                    <div class="tab-header">
+                        <h2>Social Feed</h2>
+                        <div class="security-status">
+                            <span class="security-indicator active"><img src="https://i.imgur.com/b8Iyclt_d.png" alt="LockGram" class="security-logo"> Encrypted</span>
+                        </div>
+                    </div>
+
+                    <!-- Create Post -->
+                    <div class="create-post-card">
+                        <div class="user-avatar">👤</div>
+                        <button class="create-post-btn" id="create-post-btn">
+                            What's happening in Web3?
+                        </button>
+                    </div>
+
+                    <!-- Posts Feed -->
+                    <div class="posts-container" id="posts-container">
+                        <!-- Posts will be dynamically loaded here -->
+                    </div>
+                </section>
+
+                <!-- AI Chat Tab -->
+                <section id="chat-tab" class="tab-content">
+                    <div class="tab-header">
+                        <h2>AI Assistant</h2>
+                        <div class="ai-status">
+                            <span class="status-indicator online">●</span>
+                            <span>Online</span>
+                        </div>
+                    </div>
+
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chat-messages">
+                            <div class="message ai-message">
+                                <div class="message-avatar">🤖</div>
+                                <div class="message-content">
+                                    <div class="message-bubble">
+                                        <p>Welcome to LockGram! I'm your AI assistant. I can help you create engaging posts, optimize your LockCoin earnings, and navigate the Web3 social network. What would you like to do today?</p>
+                                    </div>
+                                    <span class="message-time">2:30 PM</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-input-container">
+                            <input type="text" class="chat-input" placeholder="Ask me anything about Web3 or content creation..." id="chat-input">
+                            <button class="send-btn" id="send-message">
+                                <span class="icon">➤</span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Mint Tab -->
+                <section id="mint-tab" class="tab-content">
+                    <div class="tab-header">
+                        <h2>NFT Minting</h2>
+                        <div class="mint-stats">
+                            <span>Minted: <strong>42</strong></span>
+                        </div>
+                    </div>
+
+                    <div class="mint-card">
+                        <h3>Create Your NFT</h3>
+                        <p>Transform your content into unique NFTs and earn from them on the blockchain.</p>
+                        
+                        <div class="mint-options" style="display: flex; flex-direction: column; gap: 16px; margin: 24px 0;">
+                            <div class="mint-option" style="display: flex; align-items: center; justify-content: space-between; padding: 16px; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px;">
+                                <div>
+                                    <h4>Image NFT</h4>
+                                    <p style="color: var(--text-secondary); font-size: 0.9rem;">Mint your photos and artwork</p>
+                                </div>
+                                <button class="mint-option-btn" style="padding: 8px 16px; background: var(--gradient-accent); border: none; border-radius: 8px; color: white; cursor: pointer;">Create</button>
+                            </div>
+                            <div class="mint-option" style="display: flex; align-items: center; justify-content: space-between; padding: 16px; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px;">
+                                <div>
+                                    <h4>Text NFT</h4>
+                                    <p style="color: var(--text-secondary); font-size: 0.9rem;">Turn your thoughts into collectibles</p>
+                                </div>
+                                <button class="mint-option-btn" style="padding: 8px 16px; background: var(--gradient-accent); border: none; border-radius: 8px; color: white; cursor: pointer;">Create</button>
+                            </div>
+                            <div class="mint-option" style="display: flex; align-items: center; justify-content: space-between; padding: 16px; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px;">
+                                <div>
+                                    <h4>Video NFT</h4>
+                                    <p style="color: var(--text-secondary); font-size: 0.9rem;">Tokenize your video content</p>
+                                </div>
+                                <button class="mint-option-btn" style="padding: 8px 16px; background: var(--gradient-accent); border: none; border-radius: 8px; color: white; cursor: pointer;">Create</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Vote Tab -->
+                <section id="vote-tab" class="tab-content">
+                    <div class="tab-header">
+                        <h2>Governance</h2>
+                        <div class="governance-stats">
+                            <span>Voting Power: <strong>2,450</strong></span>
+                        </div>
+                    </div>
+
+                    <div class="proposal-card">
+                        <div class="proposal-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                            <h4>Increase LockCoin Rewards for Quality Content</h4>
+                            <span style="padding: 4px 8px; background: rgba(74, 140, 255, 0.15); color: var(--primary-blue); border-radius: 20px; font-size: 0.8rem;">Voting</span>
+                        </div>
+                        <p>Propose to increase LockCoin rewards for posts with high engagement and quality scores.</p>
+                        <div style="margin: 16px 0;">
+                            <div class="stat">
+                                <span style="display: block; color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 4px;">For</span>
+                                <span style="display: block; color: var(--text-primary); font-weight: 600; margin-bottom: 4px;">67%</span>
+                                <div style="height: 4px; background: var(--border-subtle); border-radius: 2px; overflow: hidden;">
+                                    <div style="height: 100%; background: var(--success); width: 67%; transition: width 0.35s ease-out;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="vote-btn for" style="flex: 1; padding: 8px 16px; background: rgba(34, 197, 94, 0.15); color: var(--success); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 8px; cursor: pointer;">Vote For</button>
+                            <button class="vote-btn against" style="flex: 1; padding: 8px 16px; background: rgba(239, 68, 68, 0.15); color: var(--error); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; cursor: pointer;">Vote Against</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Profile Tab -->
+                <section id="profile-tab" class="tab-content">
+                    <div class="tab-header">
+                        <h2>Profile</h2>
+                        <button class="settings-btn">⚙️</button>
+                    </div>
+
+                    <div class="profile-container">
+                        <div class="profile-header">
+                            <div class="profile-avatar">👤</div>
+                            <div class="profile-info">
+                                <h3 id="profile-username">@CryptoCreator</h3>
+                                <p class="wallet-address" id="wallet-address-display">Not connected</p>
+                                <div class="profile-stats">
+                                    <span class="stat-item">
+                                        <span class="stat-number" id="posts-count">0</span>
+                                        <span class="stat-label">Posts</span>
+                                    </span>
+                                    <span class="stat-item">
+                                        <span class="stat-number" id="followers-count">8,934</span>
+                                        <span class="stat-label">Followers</span>
+                                    </span>
+                                    <span class="stat-item">
+                                        <span class="stat-number" id="lck-earned">0</span>
+                                        <span class="stat-label">LCK Earned</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="profile-actions">
+                            <button class="action-btn primary" id="connect-wallet-btn" onclick="app.showWalletConnectionModal()">
+                                <span class="icon">🔗</span>
+                                <span id="wallet-btn-text">Connect Wallet</span>
+                            </button>
+                            <button class="action-btn secondary" id="invite-friends-btn" onclick="app.inviteFriend()">
+                                <span class="icon">👥</span>
+                                Invite Friends (+100 LCK)
+                            </button>
+                            <button class="action-btn secondary" id="privacy-settings-btn" onclick="app.showPrivacySettings()">
+                                <img src="https://i.imgur.com/b8Iyclt_d.png" alt="LockGram" class="security-logo">
+                                Privacy Settings
+                            </button>
+                        </div>
+
+                        <div class="profile-sections">
+                            <div class="profile-section">
+                                <h4>💰 LockCoin Earnings</h4>
+                                <div class="earnings-summary">
+                                    <div class="earning-item">
+                                        <span class="earning-amount" id="current-balance">0</span>
+                                        <span class="earning-label">Available LCK</span>
+                                    </div>
+                                    <div class="earning-item">
+                                        <span class="earning-amount" id="total-earned">0</span>
+                                        <span class="earning-label">Total Earned</span>
+                                    </div>
+                                    <div class="earning-item">
+                                        <span class="earning-amount" id="friends-invited">0</span>
+                                        <span class="earning-label">Friends Invited</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="referral-details">
+                                    <div class="referral-item">
+                                        <span class="referral-count" id="verified-invites">0</span>
+                                        <span class="referral-label">✅ Verified Invites</span>
+                                    </div>
+                                    <div class="referral-item">
+                                        <span class="referral-count" id="pending-invites">0</span>
+                                        <span class="referral-label">⏳ Pending Invites</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="invite-info">
+                                    <p class="invite-note">
+                                        💡 <strong>How it works:</strong> Share your invite link. Earn 100 LCK when friends join and stay active for 24 hours.
+                                    </p>
+                                </div>
+                                <div class="earning-actions">
+                                    <button class="withdraw-btn" onclick="app.showWithdrawModal()" id="withdraw-btn" disabled>
+                                        <span class="icon">💸</span>
+                                        Withdraw LCK
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="profile-sections">
+                            <div class="profile-section">
+                                <h4>Security Dashboard</h4>
+                                <div class="security-items">
+                                    <div class="security-item">
+                                        <img src="https://i.imgur.com/b8Iyclt_d.png" alt="LockGram" class="security-logo">
+                                        <div class="security-info">
+                                            <span class="security-title">End-to-End Encryption</span>
+                                            <span class="security-status active">Active</span>
+                                        </div>
+                                    </div>
+                                    <div class="security-item">
+                                        <span class="security-icon">🛡️</span>
+                                        <div class="security-info">
+                                            <span class="security-title">Zero-Knowledge Architecture</span>
+                                            <span class="security-status active">Active</span>
+                                        </div>
+                                    </div>
+                                    <div class="security-item">
+                                        <span class="security-icon">🌍</span>
+                                        <div class="security-info">
+                                            <span class="security-title">GDPR Compliance</span>
+                                            <span class="security-status active">Compliant</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="profile-section">
+                                <h4>Recent Activity</h4>
+                                <div class="activity-list">
+                                    <div class="activity-item">
+                                        <span class="activity-icon">💰</span>
+                                        <div class="activity-info">
+                                            <span class="activity-title">Earned 25 LCK</span>
+                                            <span class="activity-time">2 hours ago</span>
+                                        </div>
+                                    </div>
+                                    <div class="activity-item">
+                                        <span class="activity-icon">❤️</span>
+                                        <div class="activity-info">
+                                            <span class="activity-title">Post liked 47 times</span>
+                                            <span class="activity-time">5 hours ago</span>
+                                        </div>
+                                    </div>
+                                    <div class="activity-item">
+                                        <span class="activity-icon">🗳️</span>
+                                        <div class="activity-info">
+                                            <span class="activity-title">Voted on proposal</span>
+                                            <span class="activity-time">1 day ago</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <!-- Modals and Overlays -->
+        <div id="modal-overlay" class="modal-overlay hidden">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3 id="modal-title">Create Post</h3>
+                    <button class="modal-close" id="modal-close">✕</button>
+                </div>
+                <div class="modal-content" id="modal-content">
+                    <!-- Dynamic content -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div id="toast-container" class="toast-container"></div>
+    </div>
+
+    <script>
+        // LockGram - Professional Web3 Social Network JavaScript
+        console.log('LockGram: Starting initialization...');
+
+        class LockGramApp {
+            constructor() {
+                this.currentUser = {
+                    userId: null,
+                    username: '@CryptoCreator',
+                    walletAddress: null, // Will be set when wallet is connected
+                    balance: 0,
+                    lockcoinsEarned: 0,
+                    posts: 0,
+                    followers: 8934,
+                    invitedFriends: 0,
+                    pendingInvites: [], // Tracks pending invite rewards
+                    verifiedInvites: [] // Tracks verified successful invites
+                };
+                
+                this.isDarkTheme = true;
+                this.currentTab = 'feed';
+                this.posts = [];
+                
+                this.init();
+            }
+
+            init() {
+                try {
+                    console.log('LockGram: Simple init starting...');
+                    
+                    // Basic setup without complex async operations
+                    this.setupEventListeners();
+                    this.initializeUI();
+                    this.updateProfileDisplay();
+                    
+                    console.log('LockGram: Simple init complete');
+                    
+                } catch (error) {
+                    console.error('LockGram: Init error:', error);
+                }
+            }
+
+            hideLoadingScreen() {
+                console.log('LockGram: Hiding loading screen...');
+                
+                const loadingScreen = document.getElementById('loading-screen');
+                
+                if (loadingScreen) {
+                    // Use the CSS class that matches the styling
+                    loadingScreen.classList.add('hidden');
+                    console.log('LockGram: Loading screen hidden successfully');
+                } else {
+                    console.error('LockGram: Could not find loading screen element');
+                }
+            }
+
+            setupEventListeners() {
+                console.log('LockGram: Setting up event listeners...');
+                
+                try {
+                    // Navigation
+                    const navItems = document.querySelectorAll('.nav-item');
+                    navItems.forEach(item => {
+                        item.addEventListener('click', (e) => {
+                            const tab = e.currentTarget.dataset.tab;
+                            this.switchTab(tab);
+                        });
+                    });
+                    console.log('LockGram: Navigation listeners setup complete');
+
+                    // Theme toggle
+                    const themeToggle = document.getElementById('theme-toggle');
+                    if (themeToggle) {
+                        themeToggle.addEventListener('click', () => {
+                            this.toggleTheme();
+                        });
+                        console.log('LockGram: Theme toggle listener setup complete');
+                    } else {
+                        console.log('LockGram: Theme toggle element not found');
+                    }
+
+                    // Create post
+                    const createPostBtn = document.getElementById('create-post-btn');
+                    if (createPostBtn) {
+                        createPostBtn.addEventListener('click', () => {
+                            this.showCreatePostModal();
+                        });
+                        console.log('LockGram: Create post listener setup complete');
+                    } else {
+                        console.log('LockGram: Create post button not found');
+                    }
+
+                    // Chat functionality
+                    const sendMessageBtn = document.getElementById('send-message');
+                    if (sendMessageBtn) {
+                        sendMessageBtn.addEventListener('click', () => {
+                            this.sendMessage();
+                        });
+                    }
+
+                    const chatInput = document.getElementById('chat-input');
+                    if (chatInput) {
+                        chatInput.addEventListener('keypress', (e) => {
+                            if (e.key === 'Enter') {
+                                this.sendMessage();
+                            }
+                        });
+                    }
+
+                    // Wallet connection
+                    const connectWalletBtn = document.getElementById('connect-wallet-btn');
+                    if (connectWalletBtn) {
+                        connectWalletBtn.addEventListener('click', () => {
+                            this.connectWallet();
+                        });
+                    }
+
+                    // Privacy settings
+                    const privacySettingsBtn = document.getElementById('privacy-settings-btn');
+                    if (privacySettingsBtn) {
+                        privacySettingsBtn.addEventListener('click', () => {
+                            this.showPrivacySettings();
+                        });
+                    }
+
+                    // Modal close
+                    const modalClose = document.getElementById('modal-close');
+                    if (modalClose) {
+                        modalClose.addEventListener('click', () => {
+                            this.hideModal();
+                        });
+                    }
+
+                    // Modal overlay click
+                    const modalOverlay = document.getElementById('modal-overlay');
+                    if (modalOverlay) {
+                        modalOverlay.addEventListener('click', (e) => {
+                            if (e.target.id === 'modal-overlay') {
+                                this.hideModal();
+                            }
+                        });
+                    }
+
+                } catch (error) {
+                    console.error('LockGram: Error setting up event listeners:', error);
+                }
+            }
+
+            async loadInitialData() {
+                // Initialize user from Telegram data
+                this.initializeUserFromTelegram();
+                
+                // Check for pending referral rewards
+                await this.checkPendingReferralRewards();
+                
+                // Mock posts data
+                this.posts = [
+                    {
+                        id: 1,
+                        user: 'Web3Explorer',
+                        avatar: '🚀',
+                        address: '0xabcd...1234',
+                        content: 'Just deployed my first smart contract on Ethereum! The future of decentralized applications is here. #Web3 #DeFi #SmartContracts',
+                        time: '2 hours ago',
+                        likes: 47,
+                        comments: 12,
+                        reward: 25.5,
+                        liked: false
+                    },
+                    {
+                        id: 2,
+                        user: 'CryptoArtist',
+                        avatar: '🎨',
+                        address: '0x5678...abcd',
+                        content: 'Minted my latest digital artwork as an NFT! This piece represents the beauty of blockchain technology and digital ownership. What do you think?',
+                        time: '4 hours ago',
+                        likes: 89,
+                        comments: 23,
+                        reward: 42.3,
+                        liked: true,
+                        media: '🎨'
+                    },
+                    {
+                        id: 3,
+                        user: 'DeFiTrader',
+                        avatar: '📈',
+                        address: '0x9876...5432',
+                        content: 'Analysis: The upcoming Ethereum upgrade will significantly reduce gas fees. This could be a game-changer for DeFi protocols. $ETH #Ethereum #GasFees',
+                        time: '6 hours ago',
+                        likes: 156,
+                        comments: 34,
+                        reward: 67.8,
+                        liked: false
+                    }
+                ];
+
+                // Render initial posts
+                this.renderPosts();
+            }
+
+            initializeUI() {
+                // Set initial theme
+                this.applyTheme();
+                
+                // Update balance display
+                this.updateBalance();
+                
+                // Update security status
+                this.updateSecurityStatus();
+            }
+
+            switchTab(tabName) {
+                // Update navigation
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+                // Update content
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById(`${tabName}-tab`).classList.add('active');
+
+                this.currentTab = tabName;
+
+                // Trigger animations
+                if (tabName === 'feed') {
+                    this.animatePosts();
+                } else if (tabName === 'chat') {
+                    this.animateChat();
+                }
+            }
+
+            toggleTheme() {
+                this.isDarkTheme = !this.isDarkTheme;
+                this.applyTheme();
+                
+                const themeIcon = document.querySelector('.theme-toggle .icon');
+                if (themeIcon) {
+                    themeIcon.textContent = this.isDarkTheme ? '🌙' : '☀️';
+                }
+                
+                this.showToast(`Switched to ${this.isDarkTheme ? 'dark' : 'light'} theme`, 'success');
+            }
+
+            applyTheme() {
+                document.documentElement.setAttribute('data-theme', this.isDarkTheme ? 'dark' : 'light');
+            }
+
+            renderPosts() {
+                const container = document.getElementById('posts-container');
+                if (!container) return;
+
+                container.innerHTML = '';
+
+                this.posts.forEach(post => {
+                    const postElement = this.createPostElement(post);
+                    container.appendChild(postElement);
+                });
+            }
+
+            createPostElement(post) {
+                const postDiv = document.createElement('div');
+                postDiv.className = 'post-card';
+                postDiv.dataset.postId = post.id;
+
+                postDiv.innerHTML = `
+                    <div class="post-header">
+                        <div class="post-user-avatar">${post.avatar}</div>
+                        <div class="post-user-info">
+                            <div class="post-user-name">${post.user}</div>
+                            <div class="post-user-address">${post.address}</div>
+                        </div>
+                        <div class="post-time">${post.time}</div>
+                    </div>
+                    <div class="post-content">${post.content}</div>
+                    <div class="post-actions">
+                        <button class="post-action like-btn ${post.liked ? 'liked' : ''}" data-action="like">
+                            <span class="icon">${post.liked ? '❤️' : '🤍'}</span>
+                            <span class="count">${post.likes}</span>
+                        </button>
+                        <button class="post-action comment-btn" data-action="comment">
+                            <span class="icon">💬</span>
+                            <span class="count">${post.comments}</span>
+                        </button>
+                        <button class="post-action share-btn" data-action="share">
+                            <span class="icon">🔗</span>
+                            Share
+                        </button>
+                        <button class="post-action reward-btn ${post.liked ? 'rewarded' : ''}" data-action="reward">
+                            <span class="icon">💰</span>
+                            +${post.reward} LCK
+                        </button>
+                    </div>
+                `;
+
+                // Add event listeners
+                postDiv.querySelectorAll('.post-action').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const action = e.currentTarget.dataset.action;
+                        this.handlePostAction(action, post.id);
+                    });
+                });
+
+                return postDiv;
+            }
+
+            handlePostAction(action, postId) {
+                const post = this.posts.find(p => p.id === postId);
+                if (!post) return;
+
+                switch (action) {
+                    case 'like':
+                        this.toggleLike(post);
+                        break;
+                    case 'comment':
+                        this.showComments(post);
+                        break;
+                    case 'share':
+                        this.sharePost(post);
+                        break;
+                    case 'reward':
+                        this.claimReward(post);
+                        break;
+                }
+            }
+
+            toggleLike(post) {
+                post.liked = !post.liked;
+                post.likes += post.liked ? 1 : -1;
+                
+                const postElement = document.querySelector(`[data-post-id="${post.id}"]`);
+                const likeBtn = postElement.querySelector('.like-btn');
+                const countSpan = likeBtn.querySelector('.count');
+                
+                likeBtn.classList.toggle('liked', post.liked);
+                likeBtn.querySelector('.icon').textContent = post.liked ? '❤️' : '🤍';
+                countSpan.textContent = post.likes;
+                
+                this.showToast(
+                    post.liked ? `Liked! +${(post.reward * 0.1).toFixed(1)} LCK earned` : 'Like removed',
+                    'success'
+                );
+                
+                if (post.liked) {
+                    this.currentUser.balance += post.reward * 0.1;
+                    this.updateBalance();
+                }
+            }
+
+            claimReward(post) {
+                if (post.liked) {
+                    this.showToast('Reward already claimed!', 'warning');
+                    return;
+                }
+                
+                this.currentUser.balance += post.reward;
+                post.liked = true;
+                post.likes += 1;
+                
+                this.updateBalance();
+                this.renderPosts();
+                
+                this.showToast(`+${post.reward} LCK earned! 🚀`, 'success');
+            }
+
+            sharePost(post) {
+                this.showToast('Post shared successfully!', 'success');
+            }
+
+            showComments(post) {
+                this.showToast(`Comments (${post.comments}) - Feature coming soon!`, 'warning');
+            }
+
+            animatePosts() {
+                const posts = document.querySelectorAll('.post-card');
+                posts.forEach((post, index) => {
+                    post.style.animationDelay = `${index * 0.1}s`;
+                    post.classList.add('animate-in');
+                });
+            }
+
+            updateBalance() {
+                const balanceElement = document.querySelector('.balance-amount');
+                const changeElement = document.querySelector('.balance-change');
+                
+                if (balanceElement) {
+                    balanceElement.textContent = `${this.currentUser.balance.toLocaleString()} LCK`;
+                }
+                
+                if (changeElement) {
+                    const change = ((Math.random() - 0.3) * 10).toFixed(1);
+                    changeElement.textContent = `${change > 0 ? '+' : ''}${change}%`;
+                    changeElement.className = `balance-change ${change > 0 ? 'positive' : 'negative'}`;
+                }
+            }
+
+            updateSecurityStatus() {
+                const securityIndicator = document.querySelector('.security-indicator');
+                if (securityIndicator) {
+                    securityIndicator.innerHTML = '<img src="https://i.imgur.com/b8Iyclt_d.png" alt="LockGram" class="security-logo"> Encrypted';
+                }
+            }
+
+            showCreatePostModal() {
+                const modal = document.getElementById('modal-overlay');
+                const title = document.getElementById('modal-title');
+                const content = document.getElementById('modal-content');
+
+                if (!modal || !title || !content) return;
+
+                title.textContent = 'Create Post';
+                content.innerHTML = `
+                    <div class="create-post-form">
+                        <textarea placeholder="What's happening in Web3?" rows="4" style="width: 100%; min-height: 120px; padding: 16px; background: var(--bg-page); border: 1px solid var(--border-subtle); border-radius: 12px; color: var(--text-primary); font-family: inherit; font-size: 0.9rem; resize: vertical; outline: none;" class="post-textarea"></textarea>
+                        <div class="form-actions" style="display: flex; gap: 16px; margin-top: 24px;">
+                            <button class="action-btn secondary" onclick="app.hideModal()">Cancel</button>
+                            <button class="action-btn primary" onclick="app.publishPost()">Publish</button>
+                        </div>
+                    </div>
+                `;
+
+                modal.classList.remove('hidden');
+            }
+
+            publishPost() {
+                const textarea = document.querySelector('.post-textarea');
+                if (!textarea) return;
+
+                const content = textarea.value.trim();
+                
+                if (!content) {
+                    this.showToast('Please write something to post!', 'warning');
+                    return;
+                }
+
+                // Create new post
+                const newPost = {
+                    id: Date.now(),
+                    user: this.currentUser.username,
+                    avatar: '👤',
+                    address: this.currentUser.walletAddress,
+                    content: content,
+                    time: 'Just now',
+                    likes: 0,
+                    comments: 0,
+                    reward: Math.random() * 50 + 10,
+                    liked: false
+                };
+
+                this.posts.unshift(newPost);
+                this.renderPosts();
+                this.hideModal();
+                
+                this.showToast('Post published! +25 LCK bonus 🎉', 'success');
+                this.currentUser.balance += 25;
+                this.updateBalance();
+                
+                this.animatePosts();
+            }
+
+            sendMessage() {
+                const input = document.getElementById('chat-input');
+                if (!input) return;
+
+                const message = input.value.trim();
+                
+                if (!message) return;
+
+                // Add user message
+                this.addChatMessage(message, 'user');
+                input.value = '';
+
+                // Show typing indicator
+                this.showTypingIndicator();
+
+                // Simulate AI response
+                setTimeout(() => {
+                    this.hideTypingIndicator();
+                    const response = this.generateAIResponse(message);
+                    this.addChatMessage(response, 'ai');
+                }, 1500 + Math.random() * 1000);
+            }
+
+            addChatMessage(message, sender) {
+                const container = document.getElementById('chat-messages');
+                if (!container) return;
+
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender}-message`;
+
+                const avatar = sender === 'ai' ? '🤖' : '👤';
+                
+                messageDiv.innerHTML = `
+                    <div class="message-avatar">${avatar}</div>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            <p>${message}</p>
+                        </div>
+                        <span class="message-time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                    </div>
+                `;
+
+                container.appendChild(messageDiv);
+                container.scrollTop = container.scrollHeight;
+
+                // Animate message appearance
+                messageDiv.style.opacity = '0';
+                messageDiv.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    messageDiv.style.transition = 'all 0.3s ease-out';
+                    messageDiv.style.opacity = '1';
+                    messageDiv.style.transform = 'translateY(0)';
+                }, 100);
+            }
+
+            generateAIResponse(message) {
+                const responses = [
+                    "That's a great point about Web3! Have you considered how this might impact decentralized governance?",
+                    "I can help you optimize that content for better LockCoin rewards. Would you like suggestions?",
+                    "Interesting perspective! The blockchain space is evolving rapidly. What do you think about the latest developments?",
+                    "Based on your posting pattern, I recommend posting during peak engagement hours for maximum rewards.",
+                    "Great question! Let me help you create compelling content that resonates with the community.",
+                    "I notice you're interested in DeFi. Would you like me to suggest some trending topics to write about?",
+                    "Your content quality score is excellent! Consider adding more visual elements for even better engagement.",
+                    "LockGram's AI can analyze market trends. Would you like insights on trending crypto topics?"
+                ];
+
+                return responses[Math.floor(Math.random() * responses.length)];
+            }
+
+            showTypingIndicator() {
+                const container = document.getElementById('chat-messages');
+                if (!container) return;
+
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'message ai-message typing-indicator';
+                typingDiv.id = 'typing-indicator';
+                
+                typingDiv.innerHTML = `
+                    <div class="message-avatar">🤖</div>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            <div style="display: flex; gap: 4px; align-items: center; height: 20px;">
+                                <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--text-secondary); animation: typing 1.4s infinite ease-in-out;"></span>
+                                <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--text-secondary); animation: typing 1.4s infinite ease-in-out 0.2s;"></span>
+                                <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--text-secondary); animation: typing 1.4s infinite ease-in-out 0.4s;"></span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(typingDiv);
+                container.scrollTop = container.scrollHeight;
+            }
+
+            hideTypingIndicator() {
+                const indicator = document.getElementById('typing-indicator');
+                if (indicator) {
+                    indicator.remove();
+                }
+            }
+
+            animateChat() {
+                const messages = document.querySelectorAll('.chat-messages .message');
+                messages.forEach((message, index) => {
+                    message.style.animationDelay = `${index * 0.1}s`;
+                });
+            }
+
+            connectWallet() {
+                this.showWalletConnectionScreen();
+            }
+
+            showGetStartedScreen() {
+                console.log('LockGram: Showing get started screen...');
+                
+                // Hide loading screen first
+                this.hideLoadingScreen();
+                
+                const getStartedScreen = document.getElementById('get-started-screen');
+                if (getStartedScreen) {
+                    getStartedScreen.classList.remove('hidden');
+                    console.log('LockGram: Get started screen shown successfully');
+                } else {
+                    console.error('LockGram: Could not find get started screen element');
+                }
+            }
+
+            updateProfileDisplay() {
+                // Update username
+                document.getElementById('profile-username').textContent = this.currentUser.username;
+                
+                // Update wallet address
+                const walletDisplay = document.getElementById('wallet-address-display');
+                if (this.currentUser.walletAddress) {
+                    walletDisplay.textContent = `${this.currentUser.walletAddress.slice(0, 6)}...${this.currentUser.walletAddress.slice(-4)}`;
+                } else {
+                    walletDisplay.textContent = 'Not connected';
+                }
+                
+                // Update stats
+                document.getElementById('posts-count').textContent = this.currentUser.posts;
+                document.getElementById('followers-count').textContent = this.currentUser.followers.toLocaleString();
+                document.getElementById('lck-earned').textContent = this.currentUser.lockcoinsEarned.toLocaleString();
+                
+                // Update earnings section
+                document.getElementById('current-balance').textContent = this.currentUser.balance;
+                document.getElementById('total-earned').textContent = this.currentUser.lockcoinsEarned;
+                document.getElementById('friends-invited').textContent = this.currentUser.verifiedInvites.length;
+                
+                // Update referral verification details
+                document.getElementById('verified-invites').textContent = this.currentUser.verifiedInvites.length;
+                document.getElementById('pending-invites').textContent = this.currentUser.pendingInvites.length;
+                
+                // Update LCK earned from referrals only
+                const referralEarnings = this.currentUser.verifiedInvites.length * 100;
+                document.getElementById('total-earned').textContent = referralEarnings;
+                
+                // Update wallet button
+                const walletBtn = document.getElementById('wallet-btn-text');
+                const withdrawBtn = document.getElementById('withdraw-btn');
+                
+                if (this.currentUser.walletAddress) {
+                    walletBtn.textContent = 'Wallet Connected';
+                    withdrawBtn.disabled = this.currentUser.balance < 1;
+                } else {
+                    walletBtn.textContent = 'Connect Wallet';
+                    withdrawBtn.disabled = true;
+                }
+            }
+
+            hideWalletConnectionScreen() {
+                const modal = document.getElementById('modal-overlay');
+                if (modal) {
+                    modal.classList.add('hidden');
+                }
+            }
+
+            async connectPhantom() {
+                try {
+                    this.showToast('Connecting to Phantom...', 'warning');
+                    
+                    if (typeof window.solana === 'undefined') {
+                        this.showToast('Phantom wallet not installed! Please install Phantom to continue.', 'error');
+                        return;
+                    }
+
+                    const response = await window.solana.connect();
+                    const publicKey = response.publicKey.toString();
+                    
+                    if (publicKey) {
+                        this.currentUser.walletAddress = publicKey;
+                        this.updateBalance();
+                        this.hideWalletConnectionScreen();
+                        this.updateProfileDisplay();
+                        this.showToast(`Phantom connected! Address: ${publicKey.slice(0, 4)}...${publicKey.slice(-4)}`, 'success');
+                    }
+                } catch (error) {
+                    console.error('Error connecting Phantom:', error);
+                    this.showToast('Failed to connect Phantom. Please try again.', 'error');
+                }
+            }
+
+            async connectSolflare() {
+                try {
+                    this.showToast('Connecting to Solflare...', 'warning');
+                    
+                    // Simulate Solflare connection for demo
+                    setTimeout(() => {
+                        this.currentUser.walletAddress = '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM';
+                        this.updateBalance();
+                        this.hideWalletConnectionScreen();
+                        this.updateProfileDisplay();
+                        this.showToast('Solflare connected successfully!', 'success');
+                    }, 2000);
+                } catch (error) {
+                    this.showToast('Solflare connection failed.', 'error');
+                }
+            }
+
+            async connectSolana() {
+                try {
+                    this.showToast('Connecting to Solana Wallet...', 'warning');
+                    
+                    // Simulate generic Solana wallet connection
+                    setTimeout(() => {
+                        this.currentUser.walletAddress = '7BgBvyjrZX1BkzVarv2Qk5siYot5jDDVgkZP2sZCbM';
+                        this.updateBalance();
+                        this.hideWalletConnectionScreen();
+                        this.updateProfileDisplay();
+                        this.showToast('Solana wallet connected!', 'success');
+                    }, 2000);
+                } catch (error) {
+                    this.showToast('Solana wallet connection failed.', 'error');
+                }
+            }
+
+            showMainContent() {
+                // Hide loading screen first
+                const loadingScreen = document.getElementById('loading-screen');
+                if (loadingScreen) {
+                    loadingScreen.classList.add('hidden');
+                }
+                
+                const mainContent = document.getElementById('main-content');
+                if (mainContent) {
+                    mainContent.classList.remove('hidden');
+                }
+            }
+
+            checkWalletConnection() {
+                // Always show get started screen first, wallet connection is optional
+                this.showGetStartedScreen();
+            }
+
+            startApp() {
+                // Hide get started screen and show main content
+                const getStartedScreen = document.getElementById('get-started-screen');
+                if (getStartedScreen) {
+                    getStartedScreen.classList.add('hidden');
+                }
+                
+                this.showMainContent();
+                this.showToast('Welcome to LockGram! 🎉', 'success');
+            }
+
+            inviteFriend() {
+                // Generate invite link
+                const inviteLink = `https://t.me/Lockgramapp_bot?start=ref_${this.currentUser.username}`;
+                
+                // Copy to clipboard
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(inviteLink).then(() => {
+                        this.showToast('Invite link copied! 🎉', 'success');
+                    });
+                } else {
+                    // Fallback for older browsers
+                    const textArea = document.createElement('textarea');
+                    textArea.value = inviteLink;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    this.showToast('Invite link copied! 🎉', 'success');
+                }
+                
+                // Award 100 LCK for successful invite
+                this.currentUser.balance += 100;
+                this.currentUser.lockcoinsEarned += 100;
+                this.currentUser.invitedFriends += 1;
+                
+                this.updateBalance();
+                this.updateProfileDisplay();
+                this.showToast('+100 LCK earned for inviting friend! 💎', 'success');
+                
+                // Show confetti effect
+                this.showInviteConfetti();
+            }
+
+            showInviteConfetti() {
+                // Create confetti effect (simple version)
+                for (let i = 0; i < 50; i++) {
+                    setTimeout(() => {
+                        const confetti = document.createElement('div');
+                        confetti.style.position = 'fixed';
+                        confetti.style.top = '10px';
+                        confetti.style.left = Math.random() * 100 + 'vw';
+                        confetti.style.width = '10px';
+                        confetti.style.height = '10px';
+                        confetti.style.background = `hsl(${Math.random() * 360}, 70%, 60%)`;
+                        confetti.style.borderRadius = '50%';
+                        confetti.style.pointerEvents = 'none';
+                        confetti.style.zIndex = '9999';
+                        confetti.style.animation = 'confetti-fall 3s linear forwards';
+                        
+                        document.body.appendChild(confetti);
+                        
+                        setTimeout(() => {
+                            if (confetti.parentNode) {
+                                confetti.parentNode.removeChild(confetti);
+                            }
+                        }, 3000);
+                    }, i * 50);
+                }
+            }
+
+            // ===== INVITE VERIFICATION SYSTEM =====
+            
+            initializeUserFromTelegram() {
+                // Get user data from Telegram WebApp
+                if (window.Telegram && window.Telegram.WebApp) {
+                    const tg = window.Telegram.WebApp;
+                    const userData = tg.initDataUnsafe;
+                    
+                    if (userData && userData.user) {
+                        this.currentUser.userId = userData.user.id;
+                        this.currentUser.username = '@' + (userData.user.username || userData.user.first_name || 'User');
+                        
+                        // Check if user was referred
+                        if (userData.start_param) {
+                            this.handleReferral(userData.start_param);
+                        }
+                        
+                        console.log('LockGram: User initialized from Telegram:', this.currentUser);
+                    }
+                }
+                
+                // Load user's referral data from localStorage
+                this.loadReferralData();
+            }
+            
+            handleReferral(referralCode) {
+                // Check if referral code is valid (starts with 'ref_')
+                if (referralCode.startsWith('ref_')) {
+                    const referrerUsername = referralCode.replace('ref_', '');
+                    
+                    // Don't reward if user is referring themselves
+                    if (referrerUsername !== this.currentUser.username.replace('@', '')) {
+                        console.log('LockGram: User was referred by:', referrerUsername);
+                        
+                        // Store pending referral
+                        this.storePendingReferral(referrerUsername);
+                        
+                        // Notify referrer (would need backend for real-time)
+                        this.showToast('🎉 Welcome! You were invited by ' + referrerUsername, 'success');
+                    }
+                }
+            }
+            
+            storePendingReferral(referrerUsername) {
+                // Store pending referral in localStorage
+                const pendingReferrals = JSON.parse(localStorage.getItem('lockgram_pending_referrals') || '[]');
+                const pendingReferral = {
+                    id: Date.now(),
+                    referrer: referrerUsername,
+                    referred: this.currentUser.username,
+                    timestamp: new Date().toISOString(),
+                    rewarded: false
+                };
+                
+                pendingReferrals.push(pendingReferral);
+                localStorage.setItem('lockgram_pending_referrals', JSON.stringify(pendingReferrals));
+                
+                console.log('LockGram: Stored pending referral:', pendingReferral);
+            }
+            
+            loadReferralData() {
+                // Load user's referral statistics
+                const referralStats = JSON.parse(localStorage.getItem('lockgram_referral_stats') || '{}');
+                
+                if (referralStats[this.currentUser.username]) {
+                    const stats = referralStats[this.currentUser.username];
+                    this.currentUser.pendingInvites = stats.pending || [];
+                    this.currentUser.verifiedInvites = stats.verified || [];
+                    this.currentUser.invitedFriends = stats.verified?.length || 0;
+                }
+            }
+            
+            async checkPendingReferralRewards() {
+                // Check for pending referrals that can be rewarded
+                const pendingReferrals = JSON.parse(localStorage.getItem('lockgram_pending_referrals') || '[]');
+                
+                for (const referral of pendingReferrals) {
+                    if (!referral.rewarded && this.shouldRewardReferral(referral)) {
+                        await this.rewardReferral(referral);
+                    }
+                }
+            }
+            
+            shouldRewardReferral(referral) {
+                // Reward after user has been active for at least 24 hours
+                const referralTime = new Date(referral.timestamp);
+                const now = new Date();
+                const hoursSinceReferral = (now - referralTime) / (1000 * 60 * 60);
+                
+                return hoursSinceReferral >= 24; // 24 hour requirement
+            }
+            
+            async rewardReferral(referral) {
+                // Reward the referrer
+                const referralStats = JSON.parse(localStorage.getItem('lockgram_referral_stats') || '{}');
+                
+                if (!referralStats[referral.referrer]) {
+                    referralStats[referral.referrer] = { pending: [], verified: [] };
+                }
+                
+                // Move from pending to verified
+                const pendingIndex = referralStats[referral.referrer].pending.findIndex(r => r.id === referral.id);
+                if (pendingIndex !== -1) {
+                    referralStats[referral.referrer].pending.splice(pendingIndex, 1);
+                }
+                
+                referralStats[referral.referrer].verified.push({
+                    ...referral,
+                    rewarded: true,
+                    rewardDate: new Date().toISOString()
+                });
+                
+                localStorage.setItem('lockgram_referral_stats', JSON.stringify(referralStats));
+                
+                // Mark referral as rewarded
+                const allPendingReferrals = JSON.parse(localStorage.getItem('lockgram_pending_referrals') || '[]');
+                const pendingIndex = allPendingReferrals.findIndex(r => r.id === referral.id);
+                if (pendingIndex !== -1) {
+                    allPendingReferrals[pendingIndex].rewarded = true;
+                    localStorage.setItem('lockgram_pending_referrals', JSON.stringify(allPendingReferrals));
+                }
+                
+                // Notify referrer (in real app, would send notification)
+                console.log(`LockGram: Rewarded ${referral.referrer} for successful referral of ${referral.referred}`);
+            }
+            
+            inviteFriend() {
+                // Generate invite link with user ID for better tracking
+                const userId = this.currentUser.userId || 'anonymous';
+                const inviteLink = `https://t.me/Lockgramapp_bot?start=ref_${userId}`;
+                
+                // Copy to clipboard
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(inviteLink).then(() => {
+                        this.showToast('Invite link copied! 📤', 'success');
+                    });
+                } else {
+                    // Fallback for older browsers
+                    const textArea = document.createElement('textarea');
+                    textArea.value = inviteLink;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    this.showToast('Invite link copied! 📤', 'success');
+                }
+                
+                // Show instructions for earning reward
+                this.showInviteInstructions();
+                
+                // Show confetti effect
+                this.showInviteConfetti();
+            }
+            
+            showInviteInstructions() {
+                this.showToast(
+                    '📤 Invite link copied! Share with friends and earn 100 LCK when they stay active for 24 hours. 🎯',
+                    'info'
+                );
+            }
+
+            showWalletConnectionModal() {
+                const modal = document.getElementById('modal-overlay');
+                const modalTitle = document.getElementById('modal-title');
+                const modalContent = document.getElementById('modal-content');
+                
+                modalTitle.textContent = 'Connect Your Solana Wallet';
+                modalContent.innerHTML = `
+                    <div class="wallet-options">
+                        <button class="wallet-btn phantom-btn" onclick="app.connectPhantom()">
+                            <div class="wallet-icon">👻</div>
+                            <div class="wallet-info">
+                                <div class="wallet-name">Phantom</div>
+                                <div class="wallet-desc">Most popular Solana wallet</div>
+                            </div>
+                        </button>
+                        <button class="wallet-btn solflare-btn" onclick="app.connectSolflare()">
+                            <div class="wallet-icon">⚡</div>
+                            <div class="wallet-info">
+                                <div class="wallet-name">Solflare</div>
+                                <div class="wallet-desc">Secure Solana wallet</div>
+                            </div>
+                        </button>
+                        <button class="wallet-btn solana-btn" onclick="app.connectSolana()">
+                            <div class="wallet-icon">🟣</div>
+                            <div class="wallet-info">
+                                <div class="wallet-name">Solana Wallet</div>
+                                <div class="wallet-desc">Generic Solana wallet</div>
+                            </div>
+                        </button>
+                    </div>
+                    <div class="wallet-benefits">
+                        <h3>Why connect your wallet?</h3>
+                        <ul>
+                            <li>💸 Withdraw your earned LCK</li>
+                            <li>🔐 Secure, decentralized access</li>
+                            <li>💎 Full Web3 social features</li>
+                            <li>🔒 End-to-end encrypted messaging</li>
+                        </ul>
+                    </div>
+                `;
+                
+                modal.classList.remove('hidden');
+            }
+
+            showWithdrawModal() {
+                if (!this.currentUser.walletAddress) {
+                    this.showToast('Please connect your wallet first!', 'error');
+                    return;
+                }
+                
+                const modal = document.getElementById('modal-overlay');
+                const modalTitle = document.getElementById('modal-title');
+                const modalContent = document.getElementById('modal-content');
+                
+                modalTitle.textContent = 'Withdraw LockCoin';
+                modalContent.innerHTML = `
+                    <div class="withdraw-form">
+                        <div class="balance-info">
+                            <p>Available Balance: <strong>${this.currentUser.balance} LCK</strong></p>
+                        </div>
+                        <div class="form-group">
+                            <label for="withdraw-amount">Amount to withdraw:</label>
+                            <input type="number" id="withdraw-amount" min="1" max="${this.currentUser.balance}" value="${this.currentUser.balance}" placeholder="Enter amount">
+                        </div>
+                        <div class="form-group">
+                            <label for="wallet-address">Wallet Address:</label>
+                            <input type="text" id="withdraw-wallet" value="${this.currentUser.walletAddress}" readonly>
+                        </div>
+                        <div class="withdraw-actions">
+                            <button class="btn btn-primary" onclick="app.processWithdraw()">Withdraw LCK</button>
+                            <button class="btn btn-secondary" onclick="app.hideModal()">Cancel</button>
+                        </div>
+                    </div>
+                `;
+                
+                modal.classList.remove('hidden');
+            }
+
+            processWithdraw() {
+                const amount = parseFloat(document.getElementById('withdraw-amount').value);
+                
+                if (amount > this.currentUser.balance) {
+                    this.showToast('Insufficient balance!', 'error');
+                    return;
+                }
+                
+                if (amount < 1) {
+                    this.showToast('Minimum withdrawal is 1 LCK!', 'error');
+                    return;
+                }
+                
+                // Process withdrawal (simulate)
+                this.showToast('Withdrawal initiated! You will receive your LCK shortly. 💸', 'success');
+                this.hideModal();
+                
+                // Deduct from balance
+                this.currentUser.balance -= amount;
+                this.updateBalance();
+                this.updateProfileDisplay();
+            }
+
+            showPrivacySettings() {
+                this.showToast('Privacy settings opened', 'success');
+            }
+
+            hideModal() {
+                const modal = document.getElementById('modal-overlay');
+                if (modal) {
+                    modal.classList.add('hidden');
+                }
+            }
+
+            showToast(message, type = 'success') {
+                const container = document.getElementById('toast-container');
+                if (!container) return;
+
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.textContent = message;
+                
+                container.appendChild(toast);
+                
+                // Auto remove after 4 seconds
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(100%)';
+                    setTimeout(() => {
+                        if (toast.parentNode) {
+                            toast.parentNode.removeChild(toast);
+                        }
+                    }, 300);
+                }, 4000);
+            }
+        }
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            .animate-in {
+                animation: slideInUp 0.5s ease-out forwards;
+            }
+            
+            @keyframes slideInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            @keyframes typing {
+                0%, 60%, 100% {
+                    transform: translateY(0);
+                    opacity: 0.5;
+                }
+                30% {
+                    transform: translateY(-10px);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Add confetti animation
+        const confettiStyle = document.createElement('style');
+        confettiStyle.textContent = `
+            @keyframes confetti-fall {
+                0% {
+                    transform: translateY(-100vh) rotate(0deg);
+                    opacity: 1;
+                }
+                100% {
+                    transform: translateY(100vh) rotate(720deg);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(confettiStyle);
+
+        // Initialize the app when DOM is loaded
+        // SIMPLE LOADING SCREEN - ALWAYS WORKS
+        
+        // Hide loading screen after 2 seconds regardless of anything else
+        setTimeout(() => {
+            console.log('LockGram: Hiding loading screen NOW!');
+            const loadingScreen = document.getElementById('loading-screen');
+            if (loadingScreen) {
+                loadingScreen.classList.add('hidden');
+            }
+            
+            // Show get started screen
+            const getStartedScreen = document.getElementById('get-started-screen');
+            if (getStartedScreen) {
+                getStartedScreen.classList.remove('hidden');
+            }
+        }, 2000);
+
+        // Initialize app normally
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('LockGram: Initializing app...');
+            try {
+                window.app = new LockGramApp();
+                console.log('LockGram: App initialized');
+            } catch (error) {
+                console.error('LockGram: App init error:', error);
+            }
+        });
+
+        // Fallback for already loaded documents
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            setTimeout(() => {
+                if (!window.app) {
+                    console.log('LockGram: Fallback init...');
+                    try {
+                        window.app = new LockGramApp();
+                    } catch (error) {
+                        console.error('LockGram: Fallback init error:', error);
+                    }
+                }
+            }, 500);
+        }
+    </script>
+</body>
+</html>
